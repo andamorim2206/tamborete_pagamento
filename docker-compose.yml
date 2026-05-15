@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   # PostgreSQL Database (opcional, mas recomendado)
-    # PostgreSQL Database
+  # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
     container_name: tamborete-postgres
@@ -70,10 +70,21 @@ services:
     ports:
       - "3000:3000"
     environment:
+      # Database
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=tamborete_db
+      # Server
+      - PORT=3000
       - NODE_ENV=development
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/tamborete_db
+      # JWT
+      - JWT_SECRET=tamborete-super-secret-key-change-in-production-2026
+      # Redis
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      # RabbitMQ
       - RABBITMQ_URL=amqp://admin:admin@rabbitmq:5672
     depends_on:
       - postgres
@@ -84,6 +95,7 @@ services:
       - /app/node_modules
     networks:
       - tamborete-network
+    command: sh -c "npm run migration:run && npm run start:dev"
 
   # Frontend (Next.js) - Uncomment after setup
   frontend:

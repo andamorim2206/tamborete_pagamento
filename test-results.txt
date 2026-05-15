@@ -1,0 +1,435 @@
+
+> backend@0.0.1 test
+> jest
+
+[1G[0K[1m[2mDetermining test suites to run...[22m[22m[?2026h[999D[K
+
+[1mTest Suites: [22m0 of 7 total
+[1mTests:       [22m0 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        0 s[?2026l[?2026h[K[1A[K[1A[K[1A[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+
+[1mTest Suites: [22m0 of 7 total
+[1mTests:       [22m0 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        0 s[?2026l[?2026h[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+
+[1mTest Suites: [22m0 of 7 total
+[1mTests:       [22m0 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        1 s[?2026l[?2026h[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+
+[1mTest Suites: [22m0 of 7 total
+[1mTests:       [22m0 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        2 s[?2026l[?2026h[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+
+[1mTest Suites: [22m0 of 7 total
+[1mTests:       [22m0 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        3 s[?2026l[?2026h[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+
+[1mTest Suites: [22m0 of 7 total
+[1mTests:       [22m0 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        4 s[?2026l[?2026h[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[0m[7m[1m[32m PASS [39m[22m[27m[0m [2msrc/[22m[1mapp.controller.spec.ts[22m
+
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+
+[1mTest Suites: [22m0 of 7 total
+[1mTests:       [22m0 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        4 s[?2026l[?2026h[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+
+[1mTest Suites: [22m0 of 7 total
+[1mTests:       [22m0 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        4 s[?2026l[?2026h[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+
+[1mTest Suites: [22m[1m[32m1 passed[39m[22m, 1 of 7 total
+[1mTests:       [22m[1m[32m1 passed[39m[22m, 1 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        4 s[?2026l[?2026h[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+
+[1mTest Suites: [22m[1m[32m1 passed[39m[22m, 1 of 7 total
+[1mTests:       [22m[1m[32m2 passed[39m[22m, 2 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        5 s[?2026l[?2026h[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+
+[1mTest Suites: [22m[1m[32m1 passed[39m[22m, 1 of 7 total
+[1mTests:       [22m[1m[32m4 passed[39m[22m, 4 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        5 s[?2026l[?2026h[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+
+[1mTest Suites: [22m[1m[32m1 passed[39m[22m, 1 of 7 total
+[1mTests:       [22m[1m[32m10 passed[39m[22m, 10 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        6 s[?2026l[?2026h[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mtest/unit/users/[22m[1musers.service.spec.ts[22m
+
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+
+[1mTest Suites: [22m[1m[32m1 passed[39m[22m, 1 of 7 total
+[1mTests:       [22m[1m[32m10 passed[39m[22m, 10 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        6 s[?2026l[?2026h[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+
+[1mTest Suites: [22m[1m[32m2 passed[39m[22m, 2 of 7 total
+[1mTests:       [22m[1m[31m4 failed[39m[22m, [1m[32m23 passed[39m[22m, 27 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        6 s[?2026l[?2026h[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[31m[Nest] 180  - [39m05/15/2026, 10:10:56 PM [31m  ERROR[39m [38;5;3m[TransactionsProcessor] [39m[31m❌ Erro ao processar transação txn-123: Erro no processamento[39m
+
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+
+[1mTest Suites: [22m[1m[32m2 passed[39m[22m, 2 of 7 total
+[1mTests:       [22m[1m[31m4 failed[39m[22m, [1m[32m23 passed[39m[22m, 27 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        6 s[?2026l[?2026h[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[31m[Nest] 180  - [39m05/15/2026, 10:10:56 PM [31m  ERROR[39m [38;5;3m[TransactionsProcessor] [39m[31m❌ Erro ao processar transação txn-123: Database connection failed[39m
+
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+
+[1mTest Suites: [22m[1m[32m2 passed[39m[22m, 2 of 7 total
+[1mTests:       [22m[1m[31m4 failed[39m[22m, [1m[32m23 passed[39m[22m, 27 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        6 s[?2026l[?2026h[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mtest/unit/transactions/[22m[1mtransactions.processor.spec.ts[22m
+
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+
+[1mTest Suites: [22m[1m[32m2 passed[39m[22m, 2 of 7 total
+[1mTests:       [22m[1m[31m4 failed[39m[22m, [1m[32m23 passed[39m[22m, 27 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        6 s[?2026l[?2026h[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+
+[1mTest Suites: [22m[1m[32m3 passed[39m[22m, 3 of 7 total
+[1mTests:       [22m[1m[31m8 failed[39m[22m, [1m[33m1 skipped[39m[22m, [1m[32m31 passed[39m[22m, 40 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        6 s[?2026l[?2026h[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[0m[7m[1m[31m FAIL [39m[22m[27m[0m [2mtest/unit/auth/[22m[1mauth.service.spec.ts[22m
+
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+
+[1mTest Suites: [22m[1m[32m3 passed[39m[22m, 3 of 7 total
+[1mTests:       [22m[1m[31m8 failed[39m[22m, [1m[33m1 skipped[39m[22m, [1m[32m31 passed[39m[22m, 40 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        6 s[?2026l[?2026h[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[1m[31m  [1m● [22m[1mAuthService › login › deve fazer login e retornar token JWT[39m[22m
+
+    [2mexpect([22m[31mjest.fn()[39m[2m).[22mtoHaveBeenCalledWith[2m([22m[32m...expected[39m[2m)[22m
+
+    [32m- Expected[39m
+    [31m+ Received[39m
+
+      [2m{"email": "joao@example.com", "name": "João Silva", "sub": "user-123"}[22m,
+    [31m+ {"expiresIn": "86400s"}[39m,
+
+    Number of calls: [31m1[39m
+[2m[22m
+[2m    [0m [90m 144 |[39m[22m
+[2m     [90m 145 |[39m             [90m// Verificar que JWT foi gerado com payload correto[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 146 |[39m             expect(jwtService[33m.[39msign)[33m.[39mtoHaveBeenCalledWith({[22m
+[2m     [90m     |[39m                                     [31m[1m^[22m[2m[39m[22m
+[2m     [90m 147 |[39m                 sub[33m:[39m mockUser[33m.[39mid[33m,[39m[22m
+[2m     [90m 148 |[39m                 email[33m:[39m mockUser[33m.[39memail[33m,[39m[22m
+[2m     [90m 149 |[39m                 name[33m:[39m mockUser[33m.[39mname[33m,[39m[0m[22m
+[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36mtest/unit/auth/auth.service.spec.ts[39m[0m[2m:146:37)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mAuthService › login › deve retornar mensagem genérica para email ou senha inválidos[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m"Email ou senha in[7mválid[27mos"[39m
+    Received: [31m"Email ou senha in[7mcorret[27mos"[39m
+[2m[22m
+[2m    [0m [90m 196 |[39m                 [36mawait[39m service[33m.[39mlogin(loginDto)[33m;[39m[22m
+[2m     [90m 197 |[39m             } [36mcatch[39m (error) {[22m
+[2m    [31m[1m>[22m[2m[39m[90m 198 |[39m                 expect(error[33m.[39mmessage)[33m.[39mtoBe([32m'Email ou senha inválidos'[39m)[33m;[39m[22m
+[2m     [90m     |[39m                                       [31m[1m^[22m[2m[39m[22m
+[2m     [90m 199 |[39m                 expect(error[33m.[39mmessage)[33m.[39mnot[33m.[39mtoContain([32m'email não encontrado'[39m)[33m;[39m[22m
+[2m     [90m 200 |[39m             }[22m
+[2m     [90m 201 |[39m         })[33m;[39m[0m[22m
+[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36mtest/unit/auth/auth.service.spec.ts[39m[0m[2m:198:39)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mAuthService › login › deve criar token com expiração de 24 horas[39m[22m
+
+    TypeError: Cannot read properties of undefined (reading 'getTime')
+[2m[22m
+[2m    [0m [90m 230 |[39m             [36mconst[39m mockExpiresAt [33m=[39m [36mnew[39m [33mDate[39m([33mDate[39m[33m.[39mnow() [33m+[39m [35m86400000[39m)[33m;[39m [90m// 24h[39m[22m
+[2m     [90m 231 |[39m             authRepository[33m.[39mcreateToken[33m.[39mmockImplementation([36masync[39m (data) [33m=>[39m {[22m
+[2m    [31m[1m>[22m[2m[39m[90m 232 |[39m                 expect(data[33m.[39mexpiresAt[33m.[39mgetTime())[33m.[39mtoBeCloseTo(mockExpiresAt[33m.[39mgetTime()[33m,[39m [33m-[39m[35m3[39m)[33m;[39m [90m// Tolerância de 1000ms[39m[22m
+[2m     [90m     |[39m                                       [31m[1m^[22m[2m[39m[22m
+[2m     [90m 233 |[39m                 [36mreturn[39m {} [36mas[39m any[33m;[39m[22m
+[2m     [90m 234 |[39m             })[33m;[39m[22m
+[2m     [90m 235 |[39m[0m[22m
+[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36mtest/unit/auth/auth.service.spec.ts[39m[0m[2m:232:39)[22m[2m[22m
+[2m      [2mat AuthService.login ([22m[2msrc/auth/auth.service.ts[2m:59:35)[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36mtest/unit/auth/auth.service.spec.ts[39m[0m[2m:236:13)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mAuthService › validateToken › deve validar token ativo[39m[22m
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31m{"email": "joao@example.com", "name": "João Silva", "sub": "user-123"}[39m
+[2m[22m
+[2m    [0m [90m 261 |[39m             [36mconst[39m result [33m=[39m [36mawait[39m service[33m.[39mvalidateToken(mockToken)[33m;[39m[22m
+[2m     [90m 262 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 263 |[39m             expect(result)[33m.[39mtoBe([36mtrue[39m)[33m;[39m[22m
+[2m     [90m     |[39m                            [31m[1m^[22m[2m[39m[22m
+[2m     [90m 264 |[39m             expect(jwtService[33m.[39mverify)[33m.[39mtoHaveBeenCalledWith(mockToken)[33m;[39m[22m
+[2m     [90m 265 |[39m             expect(authRepository[33m.[39mfindByToken)[33m.[39mtoHaveBeenCalledWith(mockToken)[33m;[39m[22m
+[2m     [90m 266 |[39m         })[33m;[39m[0m[22m
+[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36mtest/unit/auth/auth.service.spec.ts[39m[0m[2m:263:28)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mAuthService › validateToken › deve rejeitar token desativado[39m[22m
+
+    UnauthorizedException: Token inválido
+[2m[22m
+[2m    [0m [90m 86 |[39m             [36mreturn[39m payload[33m;[39m[22m
+[2m     [90m 87 |[39m         } [36mcatch[39m (error) {[22m
+[2m    [31m[1m>[22m[2m[39m[90m 88 |[39m             [36mthrow[39m [36mnew[39m [33mUnauthorizedException[39m([32m'Token inválido'[39m)[33m;[39m[22m
+[2m     [90m    |[39m                   [31m[1m^[22m[2m[39m[22m
+[2m     [90m 89 |[39m         }[22m
+[2m     [90m 90 |[39m     }[22m
+[2m     [90m 91 |[39m[0m[22m
+[2m[22m
+[2m      [2mat AuthService.validateToken ([22m[2msrc/auth/auth.service.ts[2m:88:19)[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36mtest/unit/auth/auth.service.spec.ts[39m[0m[2m:287:28)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mAuthService › validateToken › deve rejeitar token expirado[39m[22m
+
+    UnauthorizedException: Token inválido
+[2m[22m
+[2m    [0m [90m 86 |[39m             [36mreturn[39m payload[33m;[39m[22m
+[2m     [90m 87 |[39m         } [36mcatch[39m (error) {[22m
+[2m    [31m[1m>[22m[2m[39m[90m 88 |[39m             [36mthrow[39m [36mnew[39m [33mUnauthorizedException[39m([32m'Token inválido'[39m)[33m;[39m[22m
+[2m     [90m    |[39m                   [31m[1m^[22m[2m[39m[22m
+[2m     [90m 89 |[39m         }[22m
+[2m     [90m 90 |[39m     }[22m
+[2m     [90m 91 |[39m[0m[22m
+[2m[22m
+[2m      [2mat AuthService.validateToken ([22m[2msrc/auth/auth.service.ts[2m:88:19)[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36mtest/unit/auth/auth.service.spec.ts[39m[0m[2m:311:28)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mAuthService › validateToken › deve rejeitar token não encontrado no banco[39m[22m
+
+    UnauthorizedException: Token inválido
+[2m[22m
+[2m    [0m [90m 86 |[39m             [36mreturn[39m payload[33m;[39m[22m
+[2m     [90m 87 |[39m         } [36mcatch[39m (error) {[22m
+[2m    [31m[1m>[22m[2m[39m[90m 88 |[39m             [36mthrow[39m [36mnew[39m [33mUnauthorizedException[39m([32m'Token inválido'[39m)[33m;[39m[22m
+[2m     [90m    |[39m                   [31m[1m^[22m[2m[39m[22m
+[2m     [90m 89 |[39m         }[22m
+[2m     [90m 90 |[39m     }[22m
+[2m     [90m 91 |[39m[0m[22m
+[2m[22m
+[2m      [2mat AuthService.validateToken ([22m[2msrc/auth/auth.service.ts[2m:88:19)[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36mtest/unit/auth/auth.service.spec.ts[39m[0m[2m:327:28)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mAuthService › validateToken › deve rejeitar token com assinatura inválida[39m[22m
+
+    UnauthorizedException: Token inválido
+[2m[22m
+[2m    [0m [90m 86 |[39m             [36mreturn[39m payload[33m;[39m[22m
+[2m     [90m 87 |[39m         } [36mcatch[39m (error) {[22m
+[2m    [31m[1m>[22m[2m[39m[90m 88 |[39m             [36mthrow[39m [36mnew[39m [33mUnauthorizedException[39m([32m'Token inválido'[39m)[33m;[39m[22m
+[2m     [90m    |[39m                   [31m[1m^[22m[2m[39m[22m
+[2m     [90m 89 |[39m         }[22m
+[2m     [90m 90 |[39m     }[22m
+[2m     [90m 91 |[39m[0m[22m
+[2m[22m
+[2m      [2mat AuthService.validateToken ([22m[2msrc/auth/auth.service.ts[2m:88:19)[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36mtest/unit/auth/auth.service.spec.ts[39m[0m[2m:341:42)[22m[2m[22m
+
+
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+
+[1mTest Suites: [22m[1m[32m3 passed[39m[22m, 3 of 7 total
+[1mTests:       [22m[1m[31m8 failed[39m[22m, [1m[33m1 skipped[39m[22m, [1m[32m31 passed[39m[22m, 40 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        6 s[?2026l[?2026h[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mtest/unit/transactions/[22m[1mtransactions.service.spec.ts[22m
+
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+
+[1mTest Suites: [22m[1m[32m3 passed[39m[22m, 3 of 7 total
+[1mTests:       [22m[1m[31m8 failed[39m[22m, [1m[33m1 skipped[39m[22m, [1m[32m31 passed[39m[22m, 40 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        6 s[?2026l[?2026h[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+
+[1mTest Suites: [22m[1m[31m1 failed[39m[22m, [1m[32m4 passed[39m[22m, 5 of 7 total
+[1mTests:       [22m[1m[31m8 failed[39m[22m, [1m[33m1 skipped[39m[22m, [1m[32m37 passed[39m[22m, 46 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        6 s[?2026l[?2026h[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mtest/unit/transactions/[22m[1mtransactions.controller.spec.ts[22m
+
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+
+[1mTest Suites: [22m[1m[31m1 failed[39m[22m, [1m[32m4 passed[39m[22m, 5 of 7 total
+[1mTests:       [22m[1m[31m8 failed[39m[22m, [1m[33m1 skipped[39m[22m, [1m[32m37 passed[39m[22m, 46 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        6 s[?2026l[?2026h[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+
+[1mTest Suites: [22m[1m[31m1 failed[39m[22m, [1m[32m5 passed[39m[22m, 6 of 7 total
+[1mTests:       [22m[1m[31m8 failed[39m[22m, [1m[33m3 skipped[39m[22m, [1m[32m46 passed[39m[22m, 57 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        6 s[?2026l[?2026h[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A(node:182) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 modified listeners added to [EventEmitter]. MaxListeners is 10. Use emitter.setMaxListeners() to increase limit
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+
+[1mTest Suites: [22m[1m[31m1 failed[39m[22m, [1m[32m5 passed[39m[22m, 6 of 7 total
+[1mTests:       [22m[1m[31m8 failed[39m[22m, [1m[33m3 skipped[39m[22m, [1m[32m46 passed[39m[22m, 57 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        6 s[?2026l[?2026h[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+
+[1mTest Suites: [22m[1m[31m1 failed[39m[22m, [1m[32m5 passed[39m[22m, 6 of 7 total
+[1mTests:       [22m[1m[31m8 failed[39m[22m, [1m[33m3 skipped[39m[22m, [1m[32m54 passed[39m[22m, 65 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        6 s[?2026l[?2026h[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+
+[1mTest Suites: [22m[1m[31m1 failed[39m[22m, [1m[32m5 passed[39m[22m, 6 of 7 total
+[1mTests:       [22m[1m[31m8 failed[39m[22m, [1m[33m3 skipped[39m[22m, [1m[32m54 passed[39m[22m, 65 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        7 s[?2026l[?2026h[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+
+[1mTest Suites: [22m[1m[31m1 failed[39m[22m, [1m[32m5 passed[39m[22m, 6 of 7 total
+[1mTests:       [22m[1m[31m8 failed[39m[22m, [1m[33m3 skipped[39m[22m, [1m[32m54 passed[39m[22m, 65 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        8 s[?2026l[?2026h[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mtest/unit/cache/[22m[1mcache.service.spec.ts[22m ([0m[1m[41m6.236 s[49m[22m[0m)
+
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [1m...[22m
+
+[1mTest Suites: [22m[1m[31m1 failed[39m[22m, [1m[32m5 passed[39m[22m, 6 of 7 total
+[1mTests:       [22m[1m[31m8 failed[39m[22m, [1m[33m3 skipped[39m[22m, [1m[32m54 passed[39m[22m, 65 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        8 s[?2026l[?2026h[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A
+
+[1mTest Suites: [22m[1m[31m1 failed[39m[22m, [1m[32m6 passed[39m[22m, 7 total
+[1mTests:       [22m[1m[31m8 failed[39m[22m, [1m[33m3 skipped[39m[22m, [1m[32m57 passed[39m[22m, 68 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        8 s[?2026l[?2026h[K[1A[K[1A[K[1A[K[1A[K[1A[33mA worker process has failed to exit gracefully and has been force exited. This is likely caused by tests leaking due to improper teardown. Try running with --detectOpenHandles to find leaks. Active timers can also cause this, ensure that .unref() was called on them.[39m
+
+
+[1mTest Suites: [22m[1m[31m1 failed[39m[22m, [1m[32m6 passed[39m[22m, 7 total
+[1mTests:       [22m[1m[31m8 failed[39m[22m, [1m[33m3 skipped[39m[22m, [1m[32m57 passed[39m[22m, 68 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        8 s[?2026l[?2026h[K[1A[K[1A[K[1A[K[1A[K[1A[?2026l[999D[K
+[1mTest Suites: [22m[1m[31m1 failed[39m[22m, [1m[32m6 passed[39m[22m, 7 total
+[1mTests:       [22m[1m[31m8 failed[39m[22m, [1m[33m3 skipped[39m[22m, [1m[32m57 passed[39m[22m, 68 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        8.785 s
+[2mRan all test suites[22m[2m.[22m
+[1G[0K\[1G[0K

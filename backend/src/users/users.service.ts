@@ -2,6 +2,7 @@ import {
     Injectable,
     ConflictException,
     BadRequestException,
+    NotFoundException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -45,7 +46,7 @@ export class UsersService {
         const user = await this.usersRepository.findById(id);
 
         if (!user) {
-            throw new BadRequestException('Usuário não encontrado');
+            throw new NotFoundException('Usuário não encontrado');
         }
 
         return UserResponseDto.fromEntity(user);

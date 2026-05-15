@@ -1,0 +1,103 @@
+import { Controller, Logger } from '@nestjs/common';
+import { EventPattern, Payload } from '@nestjs/microservices';
+import { TransactionsRepository } from './transactions.repository';
+import { TransactionStatus } from './enums/transaction-status.enum';
+import { CacheService } from '../cache/cache.service';
+
+interface TransactionCreatedEvent {
+    transactionId: string;
+    senderId: string;
+    receiverId: string;
+    amount: number;
+    paymentMethod: string;
+}
+
+@Controller()
+export class TransactionsProcessor {
+    private readonly logger = new Logger(TransactionsProcessor.name);
+
+    constructor(
+        private readonly transactionsRepository: TransactionsRepository,
+        private readonly cacheService: CacheService,
+    ) { }
+
+    @EventPattern('transaction.created')
+    async handleTransactionCreated(
+        @Payload() data: TransactionCreatedEvent,
+    ): Promise<void> {
+        const lockKey = `lock:transaction:${data.transactionId}`;
+
+        this.logger.log(
+            `📨 Recebendo transação para processar: ${data.transactionId}`,
+        );
+
+        // CONTROLE DE CONCORRÊNCIA: Tentar adquirir lock distribuído
+        const lockAcquired = await this.cacheService.acquireLock(lockKey, 60);
+
+        if (!lockAcquired) {
+            this.logger.warn(
+                `⚠️ Transação ${data.transactionId} já está sendo processada por outro worker. Ignorando...`,
+            );
+            return;
+        }
+
+        try {
+            // 1. Atualizar status para PROCESSING
+            await this.transactionsRepository.updateStatus(
+                data.transactionId,
+                TransactionStatus.PROCESSING,
+            );
+            this.logger.log(`⏳ Transação ${data.transactionId} em processamento...`);
+
+            // Invalidar cache
+            await this.cacheService.del(`transaction:${data.transactionId}`);
+            await this.cacheService.del('transactions:all');
+
+            // 2. Simular processamento (validações, chamadas externas, etc)
+            // Em um cenário real, aqui você faria:
+            // - Validação de saldo
+            // - Chamadas para APIs de pagamento (PIX, Cartão)
+            // - Regras de negócio complexas
+            await this.simulateProcessing();
+
+            // 3. Atualizar status para COMPLETED
+            await this.transactionsRepository.updateStatus(
+                data.transactionId,
+                TransactionStatus.COMPLETED,
+            );
+            this.logger.log(`✅ Transação ${data.transactionId} completada com sucesso!`);
+
+            // Invalidar cache novamente
+            await this.cacheService.del(`transaction:${data.transactionId}`);
+            await this.cacheService.del('transactions:all');
+
+        } catch (error) {
+            // 4. Se der erro, marca como FAILED
+            const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+            this.logger.error(
+                `❌ Erro ao processar transação ${data.transactionId}: ${errorMessage}`,
+            );
+            await this.transactionsRepository.updateStatus(
+                data.transactionId,
+                TransactionStatus.FAILED,
+            );
+
+            // Invalidar cache
+            await this.cacheService.del(`transaction:${data.transactionId}`);
+            await this.cacheService.del('transactions:all');
+        } finally {
+            // Liberar lock SEMPRE, mesmo em caso de erro
+            await this.cacheService.releaseLock(lockKey);
+            this.logger.log(`🔓 Lock liberado para transação ${data.transactionId}`);
+        }
+    }
+
+    private async simulateProcessing(): Promise<void> {
+        // Simula um processamento de 3 segundos
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve();
+            }, 3000);
+        });
+    }
+}

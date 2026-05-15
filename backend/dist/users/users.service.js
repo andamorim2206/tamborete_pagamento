@@ -72,7 +72,7 @@ let UsersService = class UsersService {
     async findById(id) {
         const user = await this.usersRepository.findById(id);
         if (!user) {
-            throw new common_1.BadRequestException('Usuário não encontrado');
+            throw new common_1.NotFoundException('Usuário não encontrado');
         }
         return user_response_dto_1.UserResponseDto.fromEntity(user);
     }
