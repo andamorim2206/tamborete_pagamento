@@ -22,27 +22,27 @@ let User = class User {
 exports.User = User;
 __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)('uuid'),
-    __metadata("design:type", String)
+    __metadata("design:type", Object)
 ], User.prototype, "id", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'varchar', length: 255 }),
-    __metadata("design:type", String)
+    __metadata("design:type", Object)
 ], User.prototype, "name", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'varchar', length: 255, unique: true }),
-    __metadata("design:type", String)
+    __metadata("design:type", Object)
 ], User.prototype, "email", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'varchar', length: 255 }),
-    __metadata("design:type", String)
+    __metadata("design:type", Object)
 ], User.prototype, "password", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)({ name: 'created_at' }),
-    __metadata("design:type", Date)
+    __metadata("design:type", Object)
 ], User.prototype, "createdAt", void 0);
 __decorate([
     (0, typeorm_1.UpdateDateColumn)({ name: 'updated_at' }),
-    __metadata("design:type", Date)
+    __metadata("design:type", Object)
 ], User.prototype, "updatedAt", void 0);
 exports.User = User = __decorate([
     (0, typeorm_1.Entity)('users')

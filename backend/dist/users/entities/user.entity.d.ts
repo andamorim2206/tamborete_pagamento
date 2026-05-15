@@ -1,8 +1,8 @@
 export declare class User {
-    id: string;
-    name: string;
-    email: string;
-    password: string;
-    createdAt: Date;
-    updatedAt: Date;
+    id: string | undefined;
+    name: string | undefined;
+    email: string | undefined;
+    password: string | undefined;
+    createdAt: Date | undefined;
+    updatedAt: Date | undefined;
 }
