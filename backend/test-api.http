@@ -1,0 +1,43 @@
+### Criar Usuário
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+  "name": "João Silva",
+  "email": "joao@example.com",
+  "password": "senha123"
+}
+
+###
+
+### Listar Todos os Usuários
+GET http://localhost:3000/users
+
+###
+
+### Buscar Usuário por ID
+GET http://localhost:3000/users/SEU_ID_AQUI
+
+###
+
+### Teste - Email já existe (deve retornar erro)
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+  "name": "Maria Silva",
+  "email": "joao@example.com",
+  "password": "senha456"
+}
+
+###
+
+### Teste - Validação (deve retornar erro)
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+  "name": "",
+  "email": "email-invalido",
+  "password": "123"
+}
