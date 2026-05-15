@@ -1,0 +1,115 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database (opcional, mas recomendado)
+    # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: tamborete-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: tamborete_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - tamborete-network
+
+  # pgAdmin - Interface Web para PostgreSQL
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: tamborete-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - tamborete-network
+    depends_on:
+      - postgres
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: tamborete-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - tamborete-network
+    command: redis-server --appendonly yes
+
+  # RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: tamborete-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    ports:
+      - "5672:5672" # AMQP protocol
+      - "15672:15672" # Management UI
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - tamborete-network
+
+  # Backend (NestJS) - Uncomment after setup
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: tamborete-backend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/tamborete_db
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - RABBITMQ_URL=amqp://admin:admin@rabbitmq:5672
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - tamborete-network
+
+  # Frontend (Next.js) - Uncomment after setup
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: tamborete-frontend
+    ports:
+      - "3001:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:3000
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - tamborete-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:
+  pgadmin_data:
+
+networks:
+  tamborete-network:
+    driver: bridge
