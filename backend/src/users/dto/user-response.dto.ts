@@ -9,11 +9,11 @@ export class UserResponseDto {
 
     static fromEntity(user: User): UserResponseDto {
         const response = new UserResponseDto();
-        response.id = user.id;
-        response.name = user.name;
-        response.email = user.email;
-        response.createdAt = user.createdAt;
-        response.updatedAt = user.updatedAt;
+        response.id = user.id!;
+        response.name = user.name!;
+        response.email = user.email!;
+        response.createdAt = user.createdAt!;
+        response.updatedAt = user.updatedAt!;
         return response;
     }
 }

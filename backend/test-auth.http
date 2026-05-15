@@ -1,0 +1,52 @@
+### Login - Sucesso
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "joao@example.com",
+  "password": "senha123"
+}
+
+###
+
+### Login - Email Incorreto
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "emailerrado@example.com",
+  "password": "senha123"
+}
+
+###
+
+### Login - Senha Incorreta
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "joao@example.com",
+  "password": "senhaerrada"
+}
+
+###
+
+### Login - Validação (email inválido)
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "email-invalido",
+  "password": "senha123"
+}
+
+###
+
+### Login - Validação (campos vazios)
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "",
+  "password": ""
+}

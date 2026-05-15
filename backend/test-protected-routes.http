@@ -1,0 +1,44 @@
+### 1. Fazer Login (Obter Token)
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "joao@example.com",
+  "password": "senha123"
+}
+
+# Copie o accessToken da resposta e use nos testes abaixo
+
+###
+
+### 2. Listar Usuários - SEM Token (Deve falhar com 401)
+GET http://localhost:3000/users
+
+###
+
+### 3. Listar Usuários - COM Token (Deve funcionar)
+GET http://localhost:3000/users
+Authorization: Bearer COLE_SEU_TOKEN_AQUI
+
+###
+
+### 4. Listar Usuários - Token Inválido (Deve falhar com 401)
+GET http://localhost:3000/users
+Authorization: Bearer token-invalido-123
+
+###
+
+### 5. Criar Usuário - NÃO Protegido (Funciona sem token)
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+  "name": "Carlos Santos",
+  "email": "carlos@example.com",
+  "password": "senha789"
+}
+
+###
+
+### 6. Buscar por ID - NÃO Protegido (Funciona sem token)
+GET http://localhost:3000/users/506f3fe6-117c-4061-93eb-8b875022dda3

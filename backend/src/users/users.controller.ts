@@ -6,10 +6,13 @@ import {
     Param,
     HttpCode,
     HttpStatus,
+    UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -22,7 +25,10 @@ export class UsersController {
     }
 
     @Get()
-    async findAll(): Promise<UserResponseDto[]> {
+    @UseGuards(JwtAuthGuard)
+    async findAll(@CurrentUser() user: any): Promise<UserResponseDto[]> {
+        // user contém: { id, email, name } do token JWT
+        console.log('Usuário autenticado:', user);
         return this.usersService.findAll();
     }
 
