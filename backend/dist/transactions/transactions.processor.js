@@ -19,15 +19,19 @@ const microservices_1 = require("@nestjs/microservices");
 const transactions_repository_1 = require("./transactions.repository");
 const transaction_status_enum_1 = require("./enums/transaction-status.enum");
 const cache_service_1 = require("../cache/cache.service");
+const metrics_service_1 = require("../metrics/metrics.service");
 let TransactionsProcessor = TransactionsProcessor_1 = class TransactionsProcessor {
     transactionsRepository;
     cacheService;
+    metricsService;
     logger = new common_1.Logger(TransactionsProcessor_1.name);
-    constructor(transactionsRepository, cacheService) {
+    constructor(transactionsRepository, cacheService, metricsService) {
         this.transactionsRepository = transactionsRepository;
         this.cacheService = cacheService;
+        this.metricsService = metricsService;
     }
     async handleTransactionCreated(data) {
+        const startTime = Date.now();
         const lockKey = `lock:transaction:${data.transactionId}`;
         this.logger.log(`📨 Recebendo transação para processar: ${data.transactionId}`);
         const lockAcquired = await this.cacheService.acquireLock(lockKey, 60);
@@ -35,6 +39,7 @@ let TransactionsProcessor = TransactionsProcessor_1 = class TransactionsProcesso
             this.logger.warn(`⚠️ Transação ${data.transactionId} já está sendo processada por outro worker. Ignorando...`);
             return;
         }
+        let success = false;
         try {
             await this.transactionsRepository.updateStatus(data.transactionId, transaction_status_enum_1.TransactionStatus.PROCESSING);
             this.logger.log(`⏳ Transação ${data.transactionId} em processamento...`);
@@ -43,6 +48,7 @@ let TransactionsProcessor = TransactionsProcessor_1 = class TransactionsProcesso
             await this.simulateProcessing();
             await this.transactionsRepository.updateStatus(data.transactionId, transaction_status_enum_1.TransactionStatus.COMPLETED);
             this.logger.log(`✅ Transação ${data.transactionId} completada com sucesso!`);
+            success = true;
             await this.cacheService.del(`transaction:${data.transactionId}`);
             await this.cacheService.del('transactions:all');
         }
@@ -50,10 +56,13 @@ let TransactionsProcessor = TransactionsProcessor_1 = class TransactionsProcesso
             const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
             this.logger.error(`❌ Erro ao processar transação ${data.transactionId}: ${errorMessage}`);
             await this.transactionsRepository.updateStatus(data.transactionId, transaction_status_enum_1.TransactionStatus.FAILED);
+            success = false;
             await this.cacheService.del(`transaction:${data.transactionId}`);
             await this.cacheService.del('transactions:all');
         }
         finally {
+            const processingTime = Date.now() - startTime;
+            this.metricsService.recordMessageConsumed(processingTime, success);
             await this.cacheService.releaseLock(lockKey);
             this.logger.log(`🔓 Lock liberado para transação ${data.transactionId}`);
         }
@@ -77,6 +86,7 @@ __decorate([
 exports.TransactionsProcessor = TransactionsProcessor = TransactionsProcessor_1 = __decorate([
     (0, common_1.Controller)(),
     __metadata("design:paramtypes", [transactions_repository_1.TransactionsRepository,
-        cache_service_1.CacheService])
+        cache_service_1.CacheService,
+        metrics_service_1.MetricsService])
 ], TransactionsProcessor);
 //# sourceMappingURL=transactions.processor.js.map

@@ -1,12 +1,16 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { Redis } from 'ioredis';
+import { MetricsService } from '../metrics/metrics.service';
 
 @Injectable()
 export class CacheService {
     private readonly logger = new Logger(CacheService.name);
     private readonly redis: Redis;
 
-    constructor() {
+    constructor(
+        @Inject(forwardRef(() => MetricsService))
+        private readonly metricsService: MetricsService,
+    ) {
         this.redis = new Redis({
             host: process.env.REDIS_HOST || 'localhost',
             port: parseInt(process.env.REDIS_PORT || '6379', 10),
@@ -26,17 +30,26 @@ export class CacheService {
     }
 
     async get<T>(key: string): Promise<T | null> {
+        const startTime = Date.now();
         try {
             const value = await this.redis.get(key);
+            const latency = Date.now() - startTime;
+
+            const hit = value !== null;
+            this.metricsService.recordRedisOperation('get', latency, hit);
+
             if (!value) return null;
             return JSON.parse(value);
         } catch (error) {
+            const latency = Date.now() - startTime;
+            this.metricsService.recordRedisOperation('get', latency, false);
             this.logger.error(`Error getting key ${key}: ${error.message}`);
             return null;
         }
     }
 
     async set(key: string, value: any, ttlSeconds?: number): Promise<void> {
+        const startTime = Date.now();
         try {
             const serialized = JSON.stringify(value);
             if (ttlSeconds) {
@@ -44,27 +57,41 @@ export class CacheService {
             } else {
                 await this.redis.set(key, serialized);
             }
+            const latency = Date.now() - startTime;
+            this.metricsService.recordRedisOperation('set', latency);
         } catch (error) {
+            const latency = Date.now() - startTime;
+            this.metricsService.recordRedisOperation('set', latency);
             this.logger.error(`Error setting key ${key}: ${error.message}`);
         }
     }
 
     async del(key: string): Promise<void> {
+        const startTime = Date.now();
         try {
             await this.redis.del(key);
+            const latency = Date.now() - startTime;
+            this.metricsService.recordRedisOperation('del', latency);
         } catch (error) {
+            const latency = Date.now() - startTime;
+            this.metricsService.recordRedisOperation('del', latency);
             this.logger.error(`Error deleting key ${key}: ${error.message}`);
         }
     }
 
     async delPattern(pattern: string): Promise<void> {
+        const startTime = Date.now();
         try {
             const keys = await this.redis.keys(pattern);
             if (keys.length > 0) {
                 await this.redis.del(...keys);
                 this.logger.log(`🗑️ Deleted ${keys.length} keys matching pattern: ${pattern}`);
             }
+            const latency = Date.now() - startTime;
+            this.metricsService.recordRedisOperation('delPattern', latency);
         } catch (error) {
+            const latency = Date.now() - startTime;
+            this.metricsService.recordRedisOperation('delPattern', latency);
             this.logger.error(`Error deleting pattern ${pattern}: ${error.message}`);
         }
     }

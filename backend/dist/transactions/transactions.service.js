@@ -20,15 +20,18 @@ const users_repository_1 = require("../users/users.repository");
 const transaction_response_dto_1 = require("./dto/transaction-response.dto");
 const transaction_status_enum_1 = require("./enums/transaction-status.enum");
 const cache_service_1 = require("../cache/cache.service");
+const metrics_service_1 = require("../metrics/metrics.service");
 let TransactionsService = class TransactionsService {
     transactionsRepository;
     usersRepository;
     cacheService;
+    metricsService;
     rabbitClient;
-    constructor(transactionsRepository, usersRepository, cacheService, rabbitClient) {
+    constructor(transactionsRepository, usersRepository, cacheService, metricsService, rabbitClient) {
         this.transactionsRepository = transactionsRepository;
         this.usersRepository = usersRepository;
         this.cacheService = cacheService;
+        this.metricsService = metricsService;
         this.rabbitClient = rabbitClient;
     }
     async create(senderId, createTransactionDto) {
@@ -38,7 +41,7 @@ let TransactionsService = class TransactionsService {
             const existingTransaction = await this.transactionsRepository.findById(existingTransactionId);
             if (existingTransaction) {
                 throw new common_1.ConflictException({
-                    message: 'Transação duplicada detectada',
+                    message: 'Espere um momento, sua proxima transação podera ser processada. Transação idêntica já foi criada recentemente.',
                     transactionId: existingTransactionId,
                     transaction: transaction_response_dto_1.TransactionResponseDto.fromEntity(existingTransaction),
                 });
@@ -58,7 +61,7 @@ let TransactionsService = class TransactionsService {
             paymentMethod: createTransactionDto.paymentMethod,
             status: transaction_status_enum_1.TransactionStatus.PENDING,
         });
-        await this.cacheService.setIdempotency(idempotencyKey, transaction.id, 300);
+        await this.cacheService.setIdempotency(idempotencyKey, transaction.id, 60);
         const fullTransaction = await this.transactionsRepository.findById(transaction.id);
         await this.cacheService.set(`transaction:${transaction.id}`, transaction_response_dto_1.TransactionResponseDto.fromEntity(fullTransaction), 60);
         this.rabbitClient.emit('transaction.created', {
@@ -68,6 +71,7 @@ let TransactionsService = class TransactionsService {
             amount: transaction.amount,
             paymentMethod: transaction.paymentMethod,
         });
+        this.metricsService.recordMessagePublished();
         return transaction_response_dto_1.TransactionResponseDto.fromEntity(fullTransaction);
     }
     async findAll() {
@@ -108,10 +112,11 @@ let TransactionsService = class TransactionsService {
 exports.TransactionsService = TransactionsService;
 exports.TransactionsService = TransactionsService = __decorate([
     (0, common_1.Injectable)(),
-    __param(3, (0, common_1.Inject)('RABBITMQ_SERVICE')),
+    __param(4, (0, common_1.Inject)('RABBITMQ_SERVICE')),
     __metadata("design:paramtypes", [transactions_repository_1.TransactionsRepository,
         users_repository_1.UsersRepository,
         cache_service_1.CacheService,
+        metrics_service_1.MetricsService,
         microservices_1.ClientProxy])
 ], TransactionsService);
 //# sourceMappingURL=transactions.service.js.map

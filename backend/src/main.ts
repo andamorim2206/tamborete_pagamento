@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { AppModule } from './app.module';
+import { MetricsService } from './metrics/metrics.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -17,6 +18,16 @@ async function bootstrap() {
 
   // Habilitar CORS
   app.enableCors();
+
+  // Middleware para registrar métricas de API
+  const metricsService = app.get(MetricsService);
+  app.use((req: any, res: any, next: any) => {
+    // Registrar requisição (ignora rotas de métricas para evitar loop infinito)
+    if (!req.url.startsWith('/metrics')) {
+      metricsService.recordApiRequest(`${req.method} ${req.url.split('?')[0]}`);
+    }
+    next();
+  });
 
   // Configurar RabbitMQ Microservice (para o Processor escutar a fila)
   app.connectMicroservice<MicroserviceOptions>({

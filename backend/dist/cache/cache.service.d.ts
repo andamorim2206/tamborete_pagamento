@@ -1,7 +1,9 @@
+import { MetricsService } from '../metrics/metrics.service';
 export declare class CacheService {
+    private readonly metricsService;
     private readonly logger;
     private readonly redis;
-    constructor();
+    constructor(metricsService: MetricsService);
     get<T>(key: string): Promise<T | null>;
     set(key: string, value: any, ttlSeconds?: number): Promise<void>;
     del(key: string): Promise<void>;

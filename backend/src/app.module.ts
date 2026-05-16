@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { CacheModule } from './cache/cache.module';
+import { MetricsModule } from './metrics/metrics.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { CacheModule } from './cache/cache.module';
       ttl: 60000, // 60 segundos
       limit: 10, // 10 requisições
     }]),
+    MetricsModule, // Módulo de métricas (Global)
     CacheModule,
     TypeOrmModule.forRoot({
       type: 'postgres',

@@ -13,6 +13,7 @@ import { UpdateTransactionStatusDto } from './dto/update-transaction-status.dto'
 import { TransactionResponseDto } from './dto/transaction-response.dto';
 import { TransactionStatus } from './enums/transaction-status.enum';
 import { CacheService } from '../cache/cache.service';
+import { MetricsService } from '../metrics/metrics.service';
 
 @Injectable()
 export class TransactionsService {
@@ -20,6 +21,7 @@ export class TransactionsService {
         private readonly transactionsRepository: TransactionsRepository,
         private readonly usersRepository: UsersRepository,
         private readonly cacheService: CacheService,
+        private readonly metricsService: MetricsService,
         @Inject('RABBITMQ_SERVICE') private readonly rabbitClient: ClientProxy,
     ) { }
 
@@ -27,7 +29,7 @@ export class TransactionsService {
         senderId: string,
         createTransactionDto: CreateTransactionDto,
     ): Promise<TransactionResponseDto> {
-        // 1. IDEMPOTÊNCIA: Verificar se já existe transação idêntica nos últimos 5 minutos
+        // 1. IDEMPOTÊNCIA: Verificar se já existe transação idêntica recentemente (1 minuto)
         const idempotencyKey = `idempotency:${senderId}:${createTransactionDto.receiverEmail}:${createTransactionDto.amount}:${createTransactionDto.paymentMethod}`;
         const existingTransactionId = await this.cacheService.checkIdempotency(idempotencyKey);
 
@@ -36,7 +38,7 @@ export class TransactionsService {
             const existingTransaction = await this.transactionsRepository.findById(existingTransactionId);
             if (existingTransaction) {
                 throw new ConflictException({
-                    message: 'Transação duplicada detectada',
+                    message: 'Espere um momento, sua proxima transação podera ser processada. Transação idêntica já foi criada recentemente.',
                     transactionId: existingTransactionId,
                     transaction: TransactionResponseDto.fromEntity(existingTransaction),
                 });
@@ -70,8 +72,8 @@ export class TransactionsService {
             status: TransactionStatus.PENDING,
         });
 
-        // 5. Marcar como processada no cache de idempotência (TTL: 5 minutos)
-        await this.cacheService.setIdempotency(idempotencyKey, transaction.id, 300);
+        // 5. Marcar como processada no cache de idempotência (TTL: 1 minuto)
+        await this.cacheService.setIdempotency(idempotencyKey, transaction.id, 60);
 
         // 6. Buscar transação completa com os relacionamentos
         const fullTransaction = await this.transactionsRepository.findById(
@@ -93,6 +95,9 @@ export class TransactionsService {
             amount: transaction.amount,
             paymentMethod: transaction.paymentMethod,
         });
+
+        // Registrar métrica de mensagem publicada
+        this.metricsService.recordMessagePublished();
 
         return TransactionResponseDto.fromEntity(fullTransaction!);
     }

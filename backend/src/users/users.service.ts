@@ -14,7 +14,6 @@ export class UsersService {
     constructor(private readonly usersRepository: UsersRepository) { }
 
     async create(createUserDto: CreateUserDto): Promise<UserResponseDto> {
-        // Verificar se o email já existe
         const existingUser = await this.usersRepository.findByEmail(
             createUserDto.email,
         );
@@ -23,17 +22,14 @@ export class UsersService {
             throw new ConflictException('Email já cadastrado');
         }
 
-        // Criptografar a senha
         const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
-        // Criar o usuário
         const user = await this.usersRepository.create({
             name: createUserDto.name,
             email: createUserDto.email,
             password: hashedPassword,
         });
 
-        // Retornar sem a senha
         return UserResponseDto.fromEntity(user);
     }
 

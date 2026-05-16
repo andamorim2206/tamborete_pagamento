@@ -77,6 +77,12 @@ describe('TransactionsService', () => {
             setIdempotency: jest.fn(),
         };
 
+        const mockMetricsService = {
+            recordRedisOperation: jest.fn(),
+            recordMessagePublished: jest.fn(),
+            recordMessageConsumed: jest.fn(),
+        };
+
         const mockRabbitClient = {
             emit: jest.fn(),
         };
@@ -95,6 +101,10 @@ describe('TransactionsService', () => {
                 {
                     provide: CacheService,
                     useValue: mockCacheService,
+                },
+                {
+                    provide: 'MetricsService',
+                    useValue: mockMetricsService,
                 },
                 {
                     provide: 'RABBITMQ_SERVICE',

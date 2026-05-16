@@ -27,7 +27,7 @@
 
 **Como funciona:**
 1. Gera chave única: `idempotency:${senderId}:${receiverEmail}:${amount}:${paymentMethod}`
-2. Verifica se existe no Redis (TTL: 5 minutos)
+2. Verifica se existe no Redis (TTL: 1 minuto)
 3. **Se existir**: Retorna transação original com status 409 Conflict
 4. **Se não existir**: Cria transação e salva chave no Redis
 
@@ -184,8 +184,8 @@ async create(...) {
   // 2. Criar transação
   const transaction = await this.transactionsRepository.create(...);
   
-  // 3. Marcar como processada (TTL: 5 minutos)
-  await this.cacheService.setIdempotency(idempotencyKey, transaction.id, 300);
+  // 3. Marcar como processada (TTL: 1 minuto)
+  await this.cacheService.setIdempotency(idempotencyKey, transaction.id, 60);
   
   // 4. Cachear transação (TTL: 60 segundos)
   await this.cacheService.set(`transaction:${transaction.id}`, response, 60);
@@ -332,7 +332,7 @@ transaction:{id}              # TTL: 60s
 transactions:all              # TTL: 30s
 
 # Idempotência
-idempotency:{senderId}:{receiverEmail}:{amount}:{paymentMethod}  # TTL: 300s
+idempotency:{senderId}:{receiverEmail}:{amount}:{paymentMethod}  # TTL: 60s (1 min)
 
 # Distributed Locks
 lock:transaction:{transactionId}  # TTL: 60s
@@ -441,7 +441,7 @@ await this.cacheService.incrementCounter('cache:misses');
 - ✅ CacheModule registrado globalmente
 - ✅ Cache de consultas (findById, findAll)
 - ✅ Invalidação automática de cache
-- ✅ Idempotência com TTL de 5 minutos
+- ✅ Idempotência com TTL de 1 minuto
 - ✅ Distributed locks no processor
 - ✅ Rate limiting no controller
 - ✅ ThrottlerModule configurado

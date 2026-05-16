@@ -17,6 +17,7 @@ const users_module_1 = require("./users/users.module");
 const auth_module_1 = require("./auth/auth.module");
 const transactions_module_1 = require("./transactions/transactions.module");
 const cache_module_1 = require("./cache/cache.module");
+const metrics_module_1 = require("./metrics/metrics.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -30,6 +31,7 @@ exports.AppModule = AppModule = __decorate([
                     ttl: 60000,
                     limit: 10,
                 }]),
+            metrics_module_1.MetricsModule,
             cache_module_1.CacheModule,
             typeorm_1.TypeOrmModule.forRoot({
                 type: 'postgres',

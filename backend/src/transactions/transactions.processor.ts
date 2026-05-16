@@ -3,6 +3,7 @@ import { EventPattern, Payload } from '@nestjs/microservices';
 import { TransactionsRepository } from './transactions.repository';
 import { TransactionStatus } from './enums/transaction-status.enum';
 import { CacheService } from '../cache/cache.service';
+import { MetricsService } from '../metrics/metrics.service';
 
 interface TransactionCreatedEvent {
     transactionId: string;
@@ -19,12 +20,14 @@ export class TransactionsProcessor {
     constructor(
         private readonly transactionsRepository: TransactionsRepository,
         private readonly cacheService: CacheService,
+        private readonly metricsService: MetricsService,
     ) { }
 
     @EventPattern('transaction.created')
     async handleTransactionCreated(
         @Payload() data: TransactionCreatedEvent,
     ): Promise<void> {
+        const startTime = Date.now();
         const lockKey = `lock:transaction:${data.transactionId}`;
 
         this.logger.log(
@@ -40,6 +43,8 @@ export class TransactionsProcessor {
             );
             return;
         }
+
+        let success = false;
 
         try {
             // 1. Atualizar status para PROCESSING
@@ -67,6 +72,8 @@ export class TransactionsProcessor {
             );
             this.logger.log(`✅ Transação ${data.transactionId} completada com sucesso!`);
 
+            success = true;
+
             // Invalidar cache novamente
             await this.cacheService.del(`transaction:${data.transactionId}`);
             await this.cacheService.del('transactions:all');
@@ -82,10 +89,16 @@ export class TransactionsProcessor {
                 TransactionStatus.FAILED,
             );
 
+            success = false;
+
             // Invalidar cache
             await this.cacheService.del(`transaction:${data.transactionId}`);
             await this.cacheService.del('transactions:all');
         } finally {
+            // Registrar métrica de processamento
+            const processingTime = Date.now() - startTime;
+            this.metricsService.recordMessageConsumed(processingTime, success);
+
             // Liberar lock SEMPRE, mesmo em caso de erro
             await this.cacheService.releaseLock(lockKey);
             this.logger.log(`🔓 Lock liberado para transação ${data.transactionId}`);

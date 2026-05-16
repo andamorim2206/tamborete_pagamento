@@ -4,6 +4,7 @@ const core_1 = require("@nestjs/core");
 const common_1 = require("@nestjs/common");
 const microservices_1 = require("@nestjs/microservices");
 const app_module_1 = require("./app.module");
+const metrics_service_1 = require("./metrics/metrics.service");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     app.useGlobalPipes(new common_1.ValidationPipe({
@@ -12,6 +13,13 @@ async function bootstrap() {
         transform: true,
     }));
     app.enableCors();
+    const metricsService = app.get(metrics_service_1.MetricsService);
+    app.use((req, res, next) => {
+        if (!req.url.startsWith('/metrics')) {
+            metricsService.recordApiRequest(`${req.method} ${req.url.split('?')[0]}`);
+        }
+        next();
+    });
     app.connectMicroservice({
         transport: microservices_1.Transport.RMQ,
         options: {
