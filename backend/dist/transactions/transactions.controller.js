@@ -28,11 +28,11 @@ let TransactionsController = class TransactionsController {
     async create(user, createTransactionDto) {
         return this.transactionsService.create(user.id, createTransactionDto);
     }
-    async findAll() {
-        return this.transactionsService.findAll();
+    async findAll(user) {
+        return this.transactionsService.findAll(user.id);
     }
-    async findById(id) {
-        return this.transactionsService.findById(id);
+    async findById(user, id) {
+        return this.transactionsService.findById(id, user.id);
     }
     async updateStatus(id, updateStatusDto) {
         return this.transactionsService.updateStatus(id, updateStatusDto);
@@ -51,15 +51,17 @@ __decorate([
 ], TransactionsController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], TransactionsController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], TransactionsController.prototype, "findById", null);
 __decorate([

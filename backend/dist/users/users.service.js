@@ -62,6 +62,7 @@ let UsersService = class UsersService {
             name: createUserDto.name,
             email: createUserDto.email,
             password: hashedPassword,
+            balance: 1000.00,
         });
         return user_response_dto_1.UserResponseDto.fromEntity(user);
     }

@@ -14,7 +14,7 @@ export declare class TransactionsService {
     private readonly rabbitClient;
     constructor(transactionsRepository: TransactionsRepository, usersRepository: UsersRepository, cacheService: CacheService, metricsService: MetricsService, rabbitClient: ClientProxy);
     create(senderId: string, createTransactionDto: CreateTransactionDto): Promise<TransactionResponseDto>;
-    findAll(): Promise<TransactionResponseDto[]>;
-    findById(id: string): Promise<TransactionResponseDto>;
+    findAll(userId: string): Promise<TransactionResponseDto[]>;
+    findById(id: string, userId: string): Promise<TransactionResponseDto>;
     updateStatus(id: string, updateStatusDto: UpdateTransactionStatusDto): Promise<TransactionResponseDto>;
 }

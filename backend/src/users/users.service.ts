@@ -28,6 +28,7 @@ export class UsersService {
             name: createUserDto.name,
             email: createUserDto.email,
             password: hashedPassword,
+            balance: 1000.00, // Saldo inicial de R$ 1.000,00
         });
 
         return UserResponseDto.fromEntity(user);

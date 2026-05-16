@@ -11,8 +11,8 @@ export declare class TransactionsController {
     private readonly transactionsService;
     constructor(transactionsService: TransactionsService);
     create(user: AuthUser, createTransactionDto: CreateTransactionDto): Promise<TransactionResponseDto>;
-    findAll(): Promise<TransactionResponseDto[]>;
-    findById(id: string): Promise<TransactionResponseDto>;
+    findAll(user: AuthUser): Promise<TransactionResponseDto[]>;
+    findById(user: AuthUser, id: string): Promise<TransactionResponseDto>;
     updateStatus(id: string, updateStatusDto: UpdateTransactionStatusDto): Promise<TransactionResponseDto>;
 }
 export {};

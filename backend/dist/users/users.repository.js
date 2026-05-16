@@ -33,7 +33,18 @@ let UsersRepository = class UsersRepository {
         return this.repository.findOne({ where: { id } });
     }
     async findAll() {
-        return this.repository.find();
+        return this.repository.find({
+            order: { createdAt: 'DESC' },
+        });
+    }
+    async updateBalance(userId, newBalance) {
+        await this.repository.update(userId, { balance: newBalance });
+    }
+    async debitBalance(userId, amount) {
+        await this.repository.decrement({ id: userId }, 'balance', amount);
+    }
+    async creditBalance(userId, amount) {
+        await this.repository.increment({ id: userId }, 'balance', amount);
     }
 };
 exports.UsersRepository = UsersRepository;

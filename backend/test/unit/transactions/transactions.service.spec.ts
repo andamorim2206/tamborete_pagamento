@@ -4,6 +4,7 @@ import { TransactionsService } from '../../../src/transactions/transactions.serv
 import { TransactionsRepository } from '../../../src/transactions/transactions.repository';
 import { UsersRepository } from '../../../src/users/users.repository';
 import { CacheService } from '../../../src/cache/cache.service';
+import { MetricsService } from '../../../src/metrics/metrics.service';
 import { PaymentMethod } from '../../../src/transactions/enums/payment-method.enum';
 import { TransactionStatus } from '../../../src/transactions/enums/transaction-status.enum';
 
@@ -61,6 +62,7 @@ describe('TransactionsService', () => {
             create: jest.fn(),
             findById: jest.fn(),
             findAll: jest.fn(),
+            findByUserId: jest.fn(),
             updateStatus: jest.fn(),
         };
 
@@ -81,6 +83,7 @@ describe('TransactionsService', () => {
             recordRedisOperation: jest.fn(),
             recordMessagePublished: jest.fn(),
             recordMessageConsumed: jest.fn(),
+            recordApiRequest: jest.fn(),
         };
 
         const mockRabbitClient = {
@@ -103,7 +106,7 @@ describe('TransactionsService', () => {
                     useValue: mockCacheService,
                 },
                 {
-                    provide: 'MetricsService',
+                    provide: MetricsService,
                     useValue: mockMetricsService,
                 },
                 {
@@ -152,6 +155,7 @@ describe('TransactionsService', () => {
             // Arrange (preparar)
             cacheService.checkIdempotency.mockResolvedValue(null); // Não há duplicata
             usersRepository.findByEmail.mockResolvedValue(mockReceiver);
+            usersRepository.findById.mockResolvedValue({ ...mockSender, balance: 1000 }); // Sender com saldo
             transactionsRepository.create.mockResolvedValue(mockTransaction as any);
             transactionsRepository.findById.mockResolvedValue(mockTransaction as any);
 
@@ -254,6 +258,8 @@ describe('TransactionsService', () => {
      * Por quê? Validar que cache funciona
      */
     describe('findAll', () => {
+        const userId = 'user-123';
+
         it('deve retornar do cache se existir', async () => {
             const cachedData = [
                 { id: 'txn-1', amount: 50 },
@@ -262,11 +268,11 @@ describe('TransactionsService', () => {
 
             cacheService.get.mockResolvedValue(cachedData as any);
 
-            const result = await service.findAll();
+            const result = await service.findAll(userId);
 
             expect(result).toEqual(cachedData);
             // Não deve buscar no banco se tem cache
-            expect(transactionsRepository.findAll).not.toHaveBeenCalled();
+            expect(transactionsRepository.findByUserId).not.toHaveBeenCalled();
         });
 
         /**
@@ -275,19 +281,19 @@ describe('TransactionsService', () => {
          */
         it('deve buscar no banco e cachear se não existe no cache', async () => {
             cacheService.get.mockResolvedValue(null); // Cache vazio
-            transactionsRepository.findAll.mockResolvedValue([mockTransaction] as any);
+            transactionsRepository.findByUserId.mockResolvedValue([mockTransaction] as any);
 
-            const result = await service.findAll();
+            const result = await service.findAll(userId);
 
             expect(result).toBeDefined();
             expect(result.length).toBeGreaterThan(0);
 
-            // Deve buscar no banco
-            expect(transactionsRepository.findAll).toHaveBeenCalled();
+            // Deve buscar no banco com userId
+            expect(transactionsRepository.findByUserId).toHaveBeenCalledWith(userId);
 
-            // Deve cachear o resultado
+            // Deve cachear o resultado com chave específica do usuário
             expect(cacheService.set).toHaveBeenCalledWith(
-                'transactions:all',
+                `transactions:user:${userId}`,
                 expect.any(Array),
                 30, // TTL de 30 segundos
             );
@@ -299,11 +305,19 @@ describe('TransactionsService', () => {
      * Por quê? Validar cache de consultas individuais
      */
     describe('findById', () => {
+        const userId = 'user-123';
+        const transactionId = 'txn-1';
+
         it('deve retornar do cache se existir', async () => {
-            const cachedTransaction = { id: 'txn-1', amount: 150 };
+            const cachedTransaction = {
+                id: transactionId,
+                amount: 150,
+                senderId: userId,
+                receiverId: 'other-user'
+            };
             cacheService.get.mockResolvedValue(cachedTransaction as any);
 
-            const result = await service.findById('txn-1');
+            const result = await service.findById(transactionId, userId);
 
             expect(result).toEqual(cachedTransaction);
             expect(transactionsRepository.findById).not.toHaveBeenCalled();
@@ -313,7 +327,7 @@ describe('TransactionsService', () => {
             cacheService.get.mockResolvedValue(null);
             transactionsRepository.findById.mockResolvedValue(mockTransaction as any);
 
-            const result = await service.findById('txn-789');
+            const result = await service.findById('txn-789', mockSender.id);
 
             expect(result).toBeDefined();
             expect(result.id).toBe('txn-789');
@@ -335,7 +349,25 @@ describe('TransactionsService', () => {
             transactionsRepository.findById.mockResolvedValue(null);
 
             await expect(
-                service.findById('non-existent'),
+                service.findById('non-existent', userId),
+            ).rejects.toThrow(NotFoundException);
+        });
+
+        /**
+         * TESTE: Transação sem permissão (não é sender nem receiver)
+         * Por quê? Validar segurança
+         */
+        it('deve retornar erro 404 se usuário não tem permissão', async () => {
+            const otherUserTransaction = {
+                ...mockTransaction,
+                senderId: 'other-user-1',
+                receiverId: 'other-user-2',
+            };
+            cacheService.get.mockResolvedValue(null);
+            transactionsRepository.findById.mockResolvedValue(otherUserTransaction as any);
+
+            await expect(
+                service.findById('txn-789', 'unauthorized-user'),
             ).rejects.toThrow(NotFoundException);
         });
     });
@@ -364,9 +396,10 @@ describe('TransactionsService', () => {
                 TransactionStatus.COMPLETED,
             );
 
-            // Deve invalidar caches
+            // Deve invalidar caches (transação específica + listas dos usuários)
             expect(cacheService.del).toHaveBeenCalledWith('transaction:txn-789');
-            expect(cacheService.del).toHaveBeenCalledWith('transactions:all');
+            expect(cacheService.del).toHaveBeenCalledWith(`transactions:user:${mockSender.id}`);
+            expect(cacheService.del).toHaveBeenCalledWith(`transactions:user:${mockReceiver.id}`);
         });
 
         it('deve retornar erro 404 se transação não existe', async () => {

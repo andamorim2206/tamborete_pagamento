@@ -20,6 +20,13 @@ describe('CacheService', () => {
         // Criar mock do Redis (não conecta ao Redis real)
         redisMock = new RedisMock();
 
+        const mockMetricsService = {
+            recordRedisOperation: jest.fn(),
+            recordMessagePublished: jest.fn(),
+            recordMessageConsumed: jest.fn(),
+            recordApiRequest: jest.fn(),
+        };
+
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 {
@@ -28,6 +35,8 @@ describe('CacheService', () => {
                         const cacheService = new CacheService();
                         // Substituir Redis real pelo mock
                         (cacheService as any).redis = redisMock;
+                        // Adicionar mock do MetricsService
+                        (cacheService as any).metricsService = mockMetricsService;
                         return cacheService;
                     },
                 },

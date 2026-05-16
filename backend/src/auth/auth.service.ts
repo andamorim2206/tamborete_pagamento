@@ -2,6 +2,7 @@ import {
     Injectable,
     UnauthorizedException,
     BadRequestException,
+    NotFoundException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -9,6 +10,7 @@ import { LoginDto } from './dto/login.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
 import { AuthRepository } from './auth.repository';
 import { UsersRepository } from '../users/users.repository';
+import { UserResponseDto } from '../users/dto/user-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -91,5 +93,15 @@ export class AuthService {
 
     async logout(userId: string): Promise<void> {
         await this.authRepository.deactivateAllUserTokens(userId);
+    }
+
+    async getMe(userId: string): Promise<UserResponseDto> {
+        const user = await this.usersRepository.findById(userId);
+
+        if (!user) {
+            throw new NotFoundException('Usuário não encontrado');
+        }
+
+        return UserResponseDto.fromEntity(user);
     }
 }

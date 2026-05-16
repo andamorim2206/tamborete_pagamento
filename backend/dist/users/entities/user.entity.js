@@ -16,6 +16,7 @@ let User = class User {
     name;
     email;
     password;
+    balance;
     createdAt;
     updatedAt;
 };
@@ -36,6 +37,16 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'varchar', length: 255 }),
     __metadata("design:type", Object)
 ], User.prototype, "password", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        type: 'decimal',
+        precision: 10,
+        scale: 2,
+        default: 1000.00,
+        comment: 'Saldo disponível do usuário em reais',
+    }),
+    __metadata("design:type", Object)
+], User.prototype, "balance", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)({ name: 'created_at' }),
     __metadata("design:type", Object)

@@ -13,6 +13,21 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  balance: number;
+  createdAt: string;
+}
+
+export interface Transaction {
+  id: string;
+  senderId: string;
+  senderName: string;
+  senderEmail: string;
+  receiverId: string;
+  receiverName: string;
+  receiverEmail: string;
+  amount: number;
+  paymentMethod: string;
+  status: string;
   createdAt: string;
 }
 
@@ -76,4 +91,61 @@ export function removeToken(): void {
   if (typeof window !== 'undefined') {
     localStorage.removeItem('token');
   }
+}
+
+export async function getCurrentUser(): Promise<User> {
+  const token = getToken();
+  if (!token) {
+    throw new ApiError(401, 'Não autenticado');
+  }
+
+  const response = await fetch(`${API_URL}/auth/me`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new ApiError(response.status, 'Erro ao buscar dados do usuário');
+  }
+
+  return response.json();
+}
+
+export async function getUserById(userId: string): Promise<User> {
+  const token = getToken();
+  if (!token) {
+    throw new ApiError(401, 'Não autenticado');
+  }
+
+  const response = await fetch(`${API_URL}/users/${userId}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new ApiError(response.status, 'Erro ao buscar dados do usuário');
+  }
+
+  return response.json();
+}
+
+export async function getTransactions(): Promise<Transaction[]> {
+  const token = getToken();
+  if (!token) {
+    throw new ApiError(401, 'Não autenticado');
+  }
+
+  const response = await fetch(`${API_URL}/transactions`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new ApiError(response.status, 'Erro ao buscar transações');
+  }
+
+  return response.json();
 }

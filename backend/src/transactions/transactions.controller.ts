@@ -39,13 +39,18 @@ export class TransactionsController {
     }
 
     @Get()
-    async findAll(): Promise<TransactionResponseDto[]> {
-        return this.transactionsService.findAll();
+    async findAll(
+        @CurrentUser() user: AuthUser,
+    ): Promise<TransactionResponseDto[]> {
+        return this.transactionsService.findAll(user.id);
     }
 
     @Get(':id')
-    async findById(@Param('id') id: string): Promise<TransactionResponseDto> {
-        return this.transactionsService.findById(id);
+    async findById(
+        @CurrentUser() user: AuthUser,
+        @Param('id') id: string,
+    ): Promise<TransactionResponseDto> {
+        return this.transactionsService.findById(id, user.id);
     }
 
     @Patch(':id/status')

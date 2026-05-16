@@ -49,6 +49,7 @@ const bcrypt = __importStar(require("bcrypt"));
 const login_response_dto_1 = require("./dto/login-response.dto");
 const auth_repository_1 = require("./auth.repository");
 const users_repository_1 = require("../users/users.repository");
+const user_response_dto_1 = require("../users/dto/user-response.dto");
 let AuthService = class AuthService {
     authRepository;
     usersRepository;
@@ -105,6 +106,13 @@ let AuthService = class AuthService {
     }
     async logout(userId) {
         await this.authRepository.deactivateAllUserTokens(userId);
+    }
+    async getMe(userId) {
+        const user = await this.usersRepository.findById(userId);
+        if (!user) {
+            throw new common_1.NotFoundException('Usuário não encontrado');
+        }
+        return user_response_dto_1.UserResponseDto.fromEntity(user);
     }
 };
 exports.AuthService = AuthService;

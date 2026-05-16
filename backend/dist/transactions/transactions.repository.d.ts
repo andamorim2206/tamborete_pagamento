@@ -9,5 +9,6 @@ export declare class TransactionsRepository {
     findById(id: string): Promise<Transaction | null>;
     findBySenderId(senderId: string): Promise<Transaction[]>;
     findByReceiverId(receiverId: string): Promise<Transaction[]>;
+    findByUserId(userId: string): Promise<Transaction[]>;
     updateStatus(id: string, status: TransactionStatus): Promise<void>;
 }

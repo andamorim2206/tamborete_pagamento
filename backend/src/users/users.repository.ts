@@ -24,6 +24,35 @@ export class UsersRepository {
     }
 
     async findAll(): Promise<User[]> {
-        return this.repository.find();
+        return this.repository.find({
+            order: { createdAt: 'DESC' },
+        });
+    }
+
+    /**
+     * Atualiza o saldo do usuário
+     * @param userId ID do usuário
+     * @param newBalance Novo saldo
+     */
+    async updateBalance(userId: string, newBalance: number): Promise<void> {
+        await this.repository.update(userId, { balance: newBalance });
+    }
+
+    /**
+     * Debita valor do saldo do usuário
+     * @param userId ID do usuário
+     * @param amount Valor a debitar
+     */
+    async debitBalance(userId: string, amount: number): Promise<void> {
+        await this.repository.decrement({ id: userId }, 'balance', amount);
+    }
+
+    /**
+     * Credita valor no saldo do usuário
+     * @param userId ID do usuário
+     * @param amount Valor a creditar
+     */
+    async creditBalance(userId: string, amount: number): Promise<void> {
+        await this.repository.increment({ id: userId }, 'balance', amount);
     }
 }

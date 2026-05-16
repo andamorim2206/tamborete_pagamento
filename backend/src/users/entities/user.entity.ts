@@ -20,6 +20,15 @@ export class User {
     @Column({ type: 'varchar', length: 255 })
     password: string | undefined;
 
+    @Column({
+        type: 'decimal',
+        precision: 10,
+        scale: 2,
+        default: 1000.00,
+        comment: 'Saldo disponível do usuário em reais',
+    })
+    balance: number | undefined;
+
     @CreateDateColumn({ name: 'created_at' })
     createdAt: Date | undefined;
 

@@ -100,11 +100,12 @@ describe('UsersService', () => {
             // Verificar que senha foi hasheada
             expect(bcrypt.hash).toHaveBeenCalledWith('senha123', 10);
 
-            // Verificar que usuário foi criado com senha hasheada
+            // Verificar que usuário foi criado com senha hasheada e saldo inicial
             expect(repository.create).toHaveBeenCalledWith({
                 name: 'João Silva',
                 email: 'joao@example.com',
                 password: '$2b$10$hashedpassword',
+                balance: 1000.00,
             });
         });
 

@@ -52,6 +52,15 @@ let TransactionsRepository = class TransactionsRepository {
             order: { createdAt: 'DESC' },
         });
     }
+    async findByUserId(userId) {
+        return this.repository
+            .createQueryBuilder('transaction')
+            .leftJoinAndSelect('transaction.sender', 'sender')
+            .leftJoinAndSelect('transaction.receiver', 'receiver')
+            .where('transaction.senderId = :userId OR transaction.receiverId = :userId', { userId })
+            .orderBy('transaction.createdAt', 'DESC')
+            .getMany();
+    }
     async updateStatus(id, status) {
         await this.repository.update(id, { status });
     }

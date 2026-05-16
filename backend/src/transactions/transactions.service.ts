@@ -63,7 +63,20 @@ export class TransactionsService {
             );
         }
 
-        // 4. Criar transação com status PENDING
+        // 4. Validar saldo suficiente do sender
+        const sender = await this.usersRepository.findById(senderId);
+        if (!sender) {
+            throw new BadRequestException('Usuário remetente não encontrado');
+        }
+
+        const senderBalance = Number(sender.balance) || 0;
+        if (senderBalance < createTransactionDto.amount) {
+            throw new BadRequestException(
+                `Saldo insuficiente. Saldo disponível: R$ ${senderBalance.toFixed(2)}`,
+            );
+        }
+
+        // 5. Criar transação com status PENDING
         const transaction = await this.transactionsRepository.create({
             senderId,
             receiverId: receiver.id,
@@ -72,22 +85,26 @@ export class TransactionsService {
             status: TransactionStatus.PENDING,
         });
 
-        // 5. Marcar como processada no cache de idempotência (TTL: 1 minuto)
+        // 6. Marcar como processada no cache de idempotência (TTL: 1 minuto)
         await this.cacheService.setIdempotency(idempotencyKey, transaction.id, 60);
 
-        // 6. Buscar transação completa com os relacionamentos
+        // 7. Buscar transação completa com os relacionamentos
         const fullTransaction = await this.transactionsRepository.findById(
             transaction.id,
         );
 
-        // 7. Cachear a transação (TTL: 60 segundos)
+        // 8. Cachear a transação (TTL: 60 segundos)
         await this.cacheService.set(
             `transaction:${transaction.id}`,
             TransactionResponseDto.fromEntity(fullTransaction!),
             60,
         );
 
-        // 8. Enviar para RabbitMQ para processamento assíncrono
+        // 9. Invalidar cache de listagem dos usuários envolvidos
+        await this.cacheService.del(`transactions:user:${senderId}`);
+        await this.cacheService.del(`transactions:user:${receiver.id}`);
+
+        // 10. Enviar para RabbitMQ para processamento assíncrono
         this.rabbitClient.emit('transaction.created', {
             transactionId: transaction.id,
             senderId: transaction.senderId,
@@ -102,27 +119,32 @@ export class TransactionsService {
         return TransactionResponseDto.fromEntity(fullTransaction!);
     }
 
-    async findAll(): Promise<TransactionResponseDto[]> {
-        // Verificar cache
-        const cached = await this.cacheService.get<TransactionResponseDto[]>('transactions:all');
+    async findAll(userId: string): Promise<TransactionResponseDto[]> {
+        // Verificar cache específico do usuário
+        const cacheKey = `transactions:user:${userId}`;
+        const cached = await this.cacheService.get<TransactionResponseDto[]>(cacheKey);
         if (cached) {
             return cached;
         }
 
-        // Buscar no banco
-        const transactions = await this.transactionsRepository.findAll();
+        // Buscar no banco apenas transações do usuário (enviadas ou recebidas)
+        const transactions = await this.transactionsRepository.findByUserId(userId);
         const response = transactions.map(TransactionResponseDto.fromEntity);
 
         // Cachear por 30 segundos (lista muda frequentemente)
-        await this.cacheService.set('transactions:all', response, 30);
+        await this.cacheService.set(cacheKey, response, 30);
 
         return response;
     }
 
-    async findById(id: string): Promise<TransactionResponseDto> {
+    async findById(id: string, userId: string): Promise<TransactionResponseDto> {
         // Verificar cache
         const cached = await this.cacheService.get<TransactionResponseDto>(`transaction:${id}`);
         if (cached) {
+            // Validar permissão mesmo com cache
+            if (cached.senderId !== userId && cached.receiverId !== userId) {
+                throw new NotFoundException('Transação não encontrada');
+            }
             return cached;
         }
 
@@ -130,6 +152,11 @@ export class TransactionsService {
         const transaction = await this.transactionsRepository.findById(id);
 
         if (!transaction) {
+            throw new NotFoundException('Transação não encontrada');
+        }
+
+        // Validar se o usuário tem permissão para ver esta transação
+        if (transaction.senderId !== userId && transaction.receiverId !== userId) {
             throw new NotFoundException('Transação não encontrada');
         }
 
@@ -155,7 +182,9 @@ export class TransactionsService {
 
         // Invalidar caches relacionados
         await this.cacheService.del(`transaction:${id}`);
-        await this.cacheService.del('transactions:all');
+        // Invalidar cache de ambos os usuários envolvidos
+        await this.cacheService.del(`transactions:user:${transaction.senderId}`);
+        await this.cacheService.del(`transactions:user:${transaction.receiverId}`);
 
         const updatedTransaction = await this.transactionsRepository.findById(id);
 

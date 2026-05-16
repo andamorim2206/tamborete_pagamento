@@ -7,4 +7,7 @@ export declare class UsersRepository {
     findByEmail(email: string): Promise<User | null>;
     findById(id: string): Promise<User | null>;
     findAll(): Promise<User[]>;
+    updateBalance(userId: string, newBalance: number): Promise<void>;
+    debitBalance(userId: string, amount: number): Promise<void>;
+    creditBalance(userId: string, amount: number): Promise<void>;
 }

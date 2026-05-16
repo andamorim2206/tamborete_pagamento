@@ -1,7 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TransactionsProcessor } from '../../../src/transactions/transactions.processor';
 import { TransactionsRepository } from '../../../src/transactions/transactions.repository';
+import { UsersRepository } from '../../../src/users/users.repository';
 import { CacheService } from '../../../src/cache/cache.service';
+import { MetricsService } from '../../../src/metrics/metrics.service';
 import { TransactionStatus } from '../../../src/transactions/enums/transaction-status.enum';
 
 /**
@@ -33,10 +35,22 @@ describe('TransactionsProcessor', () => {
             updateStatus: jest.fn(),
         };
 
+        const mockUsersRepository = {
+            debitBalance: jest.fn(),
+            creditBalance: jest.fn(),
+        };
+
         const mockCacheService = {
             acquireLock: jest.fn(),
             releaseLock: jest.fn(),
             del: jest.fn(),
+        };
+
+        const mockMetricsService = {
+            recordRedisOperation: jest.fn(),
+            recordMessagePublished: jest.fn(),
+            recordMessageConsumed: jest.fn(),
+            recordApiRequest: jest.fn(),
         };
 
         const module: TestingModule = await Test.createTestingModule({
@@ -47,8 +61,16 @@ describe('TransactionsProcessor', () => {
                     useValue: mockTransactionsRepository,
                 },
                 {
+                    provide: UsersRepository,
+                    useValue: mockUsersRepository,
+                },
+                {
                     provide: CacheService,
                     useValue: mockCacheService,
+                },
+                {
+                    provide: MetricsService,
+                    useValue: mockMetricsService,
                 },
             ],
         }).compile();
@@ -111,10 +133,11 @@ describe('TransactionsProcessor', () => {
                 TransactionStatus.COMPLETED,
             );
 
-            // 4. Deve invalidar cache (2x: depois de PROCESSING e depois de COMPLETED)
+            // 4. Deve invalidar cache da transação e dos usuários envolvidos
             expect(cacheService.del).toHaveBeenCalledWith('transaction:txn-123');
-            expect(cacheService.del).toHaveBeenCalledWith('transactions:all');
-            expect(cacheService.del).toHaveBeenCalledTimes(4); // 2 vezes * 2 chaves
+            expect(cacheService.del).toHaveBeenCalledWith('transactions:user:sender-456');
+            expect(cacheService.del).toHaveBeenCalledWith('transactions:user:receiver-789');
+            expect(cacheService.del).toHaveBeenCalledTimes(6); // 2 fases * 3 chaves cada
 
             // 5. Deve liberar lock
             expect(cacheService.releaseLock).toHaveBeenCalledWith('lock:transaction:txn-123');
@@ -227,15 +250,18 @@ describe('TransactionsProcessor', () => {
 
             await processor.handleTransactionCreated(mockEvent);
 
-            // Deve invalidar 4 vezes:
+            // Deve invalidar 6 vezes (2 fases x 3 chaves):
             // - 1x transaction:id após PROCESSING
-            // - 1x transactions:all após PROCESSING
+            // - 1x transactions:user:sender após PROCESSING
+            // - 1x transactions:user:receiver após PROCESSING
             // - 1x transaction:id após COMPLETED
-            // - 1x transactions:all após COMPLETED
-            expect(cacheService.del).toHaveBeenCalledTimes(4);
+            // - 1x transactions:user:sender após COMPLETED
+            // - 1x transactions:user:receiver após COMPLETED
+            expect(cacheService.del).toHaveBeenCalledTimes(6);
 
             expect(cacheService.del).toHaveBeenCalledWith('transaction:txn-123');
-            expect(cacheService.del).toHaveBeenCalledWith('transactions:all');
+            expect(cacheService.del).toHaveBeenCalledWith('transactions:user:sender-456');
+            expect(cacheService.del).toHaveBeenCalledWith('transactions:user:receiver-789');
         });
     });
 

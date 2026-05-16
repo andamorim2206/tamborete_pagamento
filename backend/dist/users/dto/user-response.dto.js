@@ -5,6 +5,7 @@ class UserResponseDto {
     id;
     name;
     email;
+    balance;
     createdAt;
     updatedAt;
     static fromEntity(user) {
@@ -12,6 +13,7 @@ class UserResponseDto {
         response.id = user.id;
         response.name = user.name;
         response.email = user.email;
+        response.balance = Number(user.balance) || 0;
         response.createdAt = user.createdAt;
         response.updatedAt = user.updatedAt;
         return response;

@@ -54,6 +54,14 @@ let TransactionsService = class TransactionsService {
         if (receiver.id === senderId) {
             throw new common_1.BadRequestException('Não é possível enviar transação para si mesmo');
         }
+        const sender = await this.usersRepository.findById(senderId);
+        if (!sender) {
+            throw new common_1.BadRequestException('Usuário remetente não encontrado');
+        }
+        const senderBalance = Number(sender.balance) || 0;
+        if (senderBalance < createTransactionDto.amount) {
+            throw new common_1.BadRequestException(`Saldo insuficiente. Saldo disponível: R$ ${senderBalance.toFixed(2)}`);
+        }
         const transaction = await this.transactionsRepository.create({
             senderId,
             receiverId: receiver.id,
@@ -64,6 +72,8 @@ let TransactionsService = class TransactionsService {
         await this.cacheService.setIdempotency(idempotencyKey, transaction.id, 60);
         const fullTransaction = await this.transactionsRepository.findById(transaction.id);
         await this.cacheService.set(`transaction:${transaction.id}`, transaction_response_dto_1.TransactionResponseDto.fromEntity(fullTransaction), 60);
+        await this.cacheService.del(`transactions:user:${senderId}`);
+        await this.cacheService.del(`transactions:user:${receiver.id}`);
         this.rabbitClient.emit('transaction.created', {
             transactionId: transaction.id,
             senderId: transaction.senderId,
@@ -74,23 +84,30 @@ let TransactionsService = class TransactionsService {
         this.metricsService.recordMessagePublished();
         return transaction_response_dto_1.TransactionResponseDto.fromEntity(fullTransaction);
     }
-    async findAll() {
-        const cached = await this.cacheService.get('transactions:all');
+    async findAll(userId) {
+        const cacheKey = `transactions:user:${userId}`;
+        const cached = await this.cacheService.get(cacheKey);
         if (cached) {
             return cached;
         }
-        const transactions = await this.transactionsRepository.findAll();
+        const transactions = await this.transactionsRepository.findByUserId(userId);
         const response = transactions.map(transaction_response_dto_1.TransactionResponseDto.fromEntity);
-        await this.cacheService.set('transactions:all', response, 30);
+        await this.cacheService.set(cacheKey, response, 30);
         return response;
     }
-    async findById(id) {
+    async findById(id, userId) {
         const cached = await this.cacheService.get(`transaction:${id}`);
         if (cached) {
+            if (cached.senderId !== userId && cached.receiverId !== userId) {
+                throw new common_1.NotFoundException('Transação não encontrada');
+            }
             return cached;
         }
         const transaction = await this.transactionsRepository.findById(id);
         if (!transaction) {
+            throw new common_1.NotFoundException('Transação não encontrada');
+        }
+        if (transaction.senderId !== userId && transaction.receiverId !== userId) {
             throw new common_1.NotFoundException('Transação não encontrada');
         }
         const response = transaction_response_dto_1.TransactionResponseDto.fromEntity(transaction);
@@ -104,7 +121,8 @@ let TransactionsService = class TransactionsService {
         }
         await this.transactionsRepository.updateStatus(id, updateStatusDto.status);
         await this.cacheService.del(`transaction:${id}`);
-        await this.cacheService.del('transactions:all');
+        await this.cacheService.del(`transactions:user:${transaction.senderId}`);
+        await this.cacheService.del(`transactions:user:${transaction.receiverId}`);
         const updatedTransaction = await this.transactionsRepository.findById(id);
         return transaction_response_dto_1.TransactionResponseDto.fromEntity(updatedTransaction);
     }

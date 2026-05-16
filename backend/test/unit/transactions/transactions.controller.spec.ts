@@ -127,16 +127,16 @@ describe('TransactionsController', () => {
             const mockList = [mockTransactionResponse];
             service.findAll.mockResolvedValue(mockList as any);
 
-            const result = await controller.findAll();
+            const result = await controller.findAll(mockUser);
 
             expect(result).toEqual(mockList);
-            expect(service.findAll).toHaveBeenCalled();
+            expect(service.findAll).toHaveBeenCalledWith(mockUser.id);
         });
 
         it('deve retornar array vazio se não há transações', async () => {
             service.findAll.mockResolvedValue([]);
 
-            const result = await controller.findAll();
+            const result = await controller.findAll(mockUser);
 
             expect(result).toEqual([]);
         });
@@ -150,10 +150,10 @@ describe('TransactionsController', () => {
         it('deve retornar transação específica', async () => {
             service.findById.mockResolvedValue(mockTransactionResponse as any);
 
-            const result = await controller.findById('txn-456');
+            const result = await controller.findById(mockUser, 'txn-456');
 
             expect(result).toEqual(mockTransactionResponse);
-            expect(service.findById).toHaveBeenCalledWith('txn-456');
+            expect(service.findById).toHaveBeenCalledWith('txn-456', mockUser.id);
         });
 
         /**

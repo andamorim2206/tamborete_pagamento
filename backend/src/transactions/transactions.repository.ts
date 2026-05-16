@@ -46,6 +46,16 @@ export class TransactionsRepository {
         });
     }
 
+    async findByUserId(userId: string): Promise<Transaction[]> {
+        return this.repository
+            .createQueryBuilder('transaction')
+            .leftJoinAndSelect('transaction.sender', 'sender')
+            .leftJoinAndSelect('transaction.receiver', 'receiver')
+            .where('transaction.senderId = :userId OR transaction.receiverId = :userId', { userId })
+            .orderBy('transaction.createdAt', 'DESC')
+            .getMany();
+    }
+
     async updateStatus(id: string, status: TransactionStatus): Promise<void> {
         await this.repository.update(id, { status });
     }
