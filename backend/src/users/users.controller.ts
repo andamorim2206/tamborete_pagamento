@@ -27,7 +27,6 @@ export class UsersController {
     @Get()
     @UseGuards(JwtAuthGuard)
     async findAll(@CurrentUser() user: any): Promise<UserResponseDto[]> {
-        // user contém: { id, email, name } do token JWT
         console.log('Usuário autenticado:', user);
         return this.usersService.findAll();
     }
