@@ -17,7 +17,7 @@ Sistema de pagamentos desenvolvido com NestJS, Next.js, PostgreSQL, Redis e Rabb
 ## 1. Clonar o repositório
 
 ```bash
-git clone <URL_DO_REPOSITORIO>
+git clone git@github.com:andamorim2206/tamborete_pagamento.git
 cd tamborete-pagamentos
 ```
 
