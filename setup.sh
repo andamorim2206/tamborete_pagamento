@@ -131,6 +131,29 @@ fi
 
 echo ""
 echo "========================================"
+echo "  CRIANDO USUÁRIOS DE TESTE"
+echo "========================================"
+echo ""
+
+# Aguardar um pouco mais para garantir que o banco está pronto após migrations
+echo -e "${BLUE}[INFO]${NC} Aguardando banco de dados estar completamente pronto..."
+sleep 5
+
+# Executar seed de usuários
+echo -e "${BLUE}[INFO]${NC} Executando seed de usuários..."
+docker-compose exec -T backend npm run seed
+
+if [ $? -eq 0 ]; then
+    echo ""
+    echo -e "${GREEN}[OK]${NC} Seed executado com sucesso"
+else
+    echo ""
+    echo -e "${RED}[ERRO]${NC} Falha ao executar seed"
+    echo -e "${YELLOW}[INFO]${NC} Você pode executar manualmente: docker-compose exec backend npm run seed"
+fi
+
+echo ""
+echo "========================================"
 echo "  INSTALAÇÃO CONCLUÍDA!"
 echo "========================================"
 echo ""
@@ -141,9 +164,17 @@ echo -e "  ${GREEN}Backend:${NC}   http://localhost:3000"
 echo -e "  ${GREEN}PgAdmin:${NC}   http://localhost:5050"
 echo -e "  ${GREEN}RabbitMQ:${NC}  http://localhost:15672"
 echo ""
-echo "Usuário de teste:"
-echo "  Email: teste.dash2@email.com"
-echo "  Senha: senha123"
+echo "========================================"
+echo ""
+echo "Usuários de teste criados:"
+echo ""
+echo -e "  ${GREEN}Admin:${NC}"
+echo "    Email: admin@teste.com"
+echo "    Senha: Senha@123"
+echo ""
+echo -e "  ${GREEN}Usuário:${NC}"
+echo "    Email: usuario@teste.com"
+echo "    Senha: Senha@123"
 echo ""
 echo "========================================"
 echo ""
