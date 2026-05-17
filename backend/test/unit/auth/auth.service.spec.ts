@@ -7,19 +7,8 @@ import { UsersRepository } from '../../../src/users/users.repository';
 import { LogsService } from '../../../src/logs/logs.service';
 import * as bcrypt from 'bcrypt';
 
-// Mock do bcrypt para todos os testes
 jest.mock('bcrypt');
 
-/**
- * TESTE DO AUTH SERVICE
- * 
- * O que testamos aqui:
- * - Login com email e senha
- * - Geração de JWT
- * - Validação de token
- * - Desativação de tokens antigos
- * - Tratamento de credenciais inválidas
- */
 describe('AuthService', () => {
     let service: AuthService;
     let authRepository: jest.Mocked<AuthRepository>;
@@ -99,18 +88,6 @@ describe('AuthService', () => {
         expect(service).toBeDefined();
     });
 
-    /**
-     * TESTE 1: Login com sucesso
-     * Por quê? Fluxo principal de autenticação
-     * 
-     * Fluxo:
-     * 1. Busca usuário por email
-     * 2. Compara senha com bcrypt
-     * 3. Desativa tokens antigos
-     * 4. Gera novo JWT
-     * 5. Salva token no banco
-     * 6. Retorna LoginResponseDto
-     */
     describe('login', () => {
         const loginDto = {
             email: 'joao@example.com',
@@ -118,7 +95,6 @@ describe('AuthService', () => {
         };
 
         it('deve fazer login e retornar token JWT', async () => {
-            // Arrange
             usersRepository.findByEmail.mockResolvedValue(mockUser as any);
             (bcrypt.compare as jest.Mock).mockResolvedValue(true);
             jwtService.sign.mockReturnValue(mockToken);
@@ -131,10 +107,8 @@ describe('AuthService', () => {
                 createdAt: new Date(),
             } as any);
 
-            // Act
             const result = await service.login(loginDto);
 
-            // Assert
             expect(result).toMatchObject({
                 accessToken: mockToken,
                 tokenType: 'Bearer',
@@ -146,16 +120,12 @@ describe('AuthService', () => {
                 },
             });
 
-            // Verificar que usuário foi buscado
             expect(usersRepository.findByEmail).toHaveBeenCalledWith('joao@example.com');
 
-            // Verificar que senha foi comparada
             expect(bcrypt.compare).toHaveBeenCalledWith('senha123', mockUser.password);
 
-            // Verificar que tokens antigos foram desativados
             expect(authRepository.deactivateAllUserTokens).toHaveBeenCalledWith(mockUser.id);
 
-            // Verificar que JWT foi gerado com payload correto
             expect(jwtService.sign).toHaveBeenCalledWith(
                 {
                     sub: mockUser.id,
@@ -166,7 +136,6 @@ describe('AuthService', () => {
                 { expiresIn: '86400s' }
             );
 
-            // Verificar que token foi salvo no banco
             expect(authRepository.createToken).toHaveBeenCalledWith(
                 mockUser.id,
                 mockToken,
@@ -174,38 +143,24 @@ describe('AuthService', () => {
             );
         });
 
-        /**
-         * TESTE 2: Email não encontrado
-         * Por quê? Validar credenciais
-         */
         it('deve retornar erro 401 se email não existe', async () => {
             usersRepository.findByEmail.mockResolvedValue(null);
 
             await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
 
-            // Não deve tentar comparar senha
             expect(bcrypt.compare).not.toHaveBeenCalled();
         });
 
-        /**
-         * TESTE 3: Senha incorreta
-         * Por quê? Validar credenciais
-         */
         it('deve retornar erro 401 se senha está incorreta', async () => {
             usersRepository.findByEmail.mockResolvedValue(mockUser as any);
             (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
             await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
 
-            // Não deve gerar token
             expect(jwtService.sign).not.toHaveBeenCalled();
             expect(authRepository.createToken).not.toHaveBeenCalled();
         });
 
-        /**
-         * TESTE 4: Mensagem de erro genérica
-         * Por quê? Segurança - não revelar se email existe
-         */
         it('deve retornar mensagem genérica para email ou senha inválidos', async () => {
             usersRepository.findByEmail.mockResolvedValue(null);
 
@@ -217,10 +172,6 @@ describe('AuthService', () => {
             }
         });
 
-        /**
-         * TESTE 5: Desativar tokens antigos
-         * Por quê? Apenas um token ativo por usuário
-         */
         it('deve desativar todos os tokens antigos do usuário', async () => {
             usersRepository.findByEmail.mockResolvedValue(mockUser as any);
             (bcrypt.compare as jest.Mock).mockResolvedValue(true);
@@ -229,16 +180,11 @@ describe('AuthService', () => {
 
             await service.login(loginDto);
 
-            // Deve desativar tokens ANTES de criar novo
             const deactivateCall = authRepository.deactivateAllUserTokens.mock.invocationCallOrder[0];
             const createTokenCall = authRepository.createToken.mock.invocationCallOrder[0];
             expect(deactivateCall).toBeLessThan(createTokenCall);
         });
 
-        /**
-         * TESTE 6: JWT expiração de 24 horas
-         * Por quê? Validar configuração de segurança
-         */
         it('deve criar token com expiração de 24 horas', async () => {
             usersRepository.findByEmail.mockResolvedValue(mockUser as any);
             (bcrypt.compare as jest.Mock).mockResolvedValue(true);
@@ -254,10 +200,6 @@ describe('AuthService', () => {
         });
     });
 
-    /**
-     * TESTE 7: Validar token JWT
-     * Por quê? Autenticação em rotas protegidas
-     */
     describe('validateToken', () => {
         it('deve validar token ativo', async () => {
             const mockTokenEntity = {
@@ -284,10 +226,6 @@ describe('AuthService', () => {
             expect(authRepository.findByToken).toHaveBeenCalledWith(mockToken);
         });
 
-        /**
-         * TESTE 8: Rejeitar token inativo
-         * Por quê? Token foi desativado no logout
-         */
         it('deve rejeitar token desativado', async () => {
             const mockTokenEntity = {
                 id: 'token-123',
@@ -307,10 +245,6 @@ describe('AuthService', () => {
             await expect(service.validateToken(mockToken)).rejects.toThrow('Token inválido');
         });
 
-        /**
-         * TESTE 9: Rejeitar token expirado
-         * Por quê? Segurança
-         */
         it('deve rejeitar token expirado', async () => {
             const mockTokenEntity = {
                 id: 'token-123',
@@ -330,10 +264,7 @@ describe('AuthService', () => {
             await expect(service.validateToken(mockToken)).rejects.toThrow('Token inválido');
         });
 
-        /**
-         * TESTE 10: Rejeitar token não encontrado no banco
-         * Por quê? Token pode ter sido deletado
-         */
+
         it('deve rejeitar token não encontrado no banco', async () => {
             jwtService.verify.mockReturnValue({
                 sub: 'user-123',
@@ -345,10 +276,7 @@ describe('AuthService', () => {
             await expect(service.validateToken(mockToken)).rejects.toThrow('Token inválido');
         });
 
-        /**
-         * TESTE 11: Rejeitar token com assinatura inválida
-         * Por quê? Token pode ter sido manipulado
-         */
+
         it('deve rejeitar token com assinatura inválida', async () => {
             jwtService.verify.mockImplementation(() => {
                 throw new Error('Invalid signature');

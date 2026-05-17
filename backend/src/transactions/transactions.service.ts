@@ -34,12 +34,10 @@ export class TransactionsService {
         createTransactionDto: CreateTransactionDto,
     ): Promise<TransactionResponseDto> {
         try {
-            // 1. IDEMPOTÊNCIA: Verificar se já existe transação idêntica recentemente (1 minuto)
             const idempotencyKey = `idempotency:${senderId}:${createTransactionDto.receiverEmail}:${createTransactionDto.amount}:${createTransactionDto.paymentMethod}`;
             const existingTransactionId = await this.cacheService.checkIdempotency(idempotencyKey);
 
             if (existingTransactionId) {
-                // Retornar transação já existente
                 const existingTransaction = await this.transactionsRepository.findById(existingTransactionId);
                 if (existingTransaction) {
                     throw new ConflictException({
@@ -50,7 +48,6 @@ export class TransactionsService {
                 }
             }
 
-            // 2. Buscar receiver pelo email
             const receiver = await this.usersRepository.findByEmail(
                 createTransactionDto.receiverEmail,
             );
@@ -61,14 +58,12 @@ export class TransactionsService {
                 );
             }
 
-            // 3. Validar que não está enviando para si mesmo
             if (receiver.id === senderId) {
                 throw new BadRequestException(
                     'Não é possível enviar transação para si mesmo',
                 );
             }
 
-            // 4. Validar saldo suficiente do sender
             const sender = await this.usersRepository.findById(senderId);
             if (!sender) {
                 throw new BadRequestException('Usuário remetente não encontrado');
@@ -81,7 +76,6 @@ export class TransactionsService {
                 );
             }
 
-            // 5. Criar transação com status PENDING
             const transaction = await this.transactionsRepository.create({
                 senderId,
                 receiverId: receiver.id,
@@ -90,26 +84,21 @@ export class TransactionsService {
                 status: TransactionStatus.PENDING,
             });
 
-            // 6. Marcar como processada no cache de idempotência (TTL: 1 minuto)
             await this.cacheService.setIdempotency(idempotencyKey, transaction.id, 60);
 
-            // 7. Buscar transação completa com os relacionamentos
             const fullTransaction = await this.transactionsRepository.findById(
                 transaction.id,
             );
 
-            // 8. Cachear a transação (TTL: 60 segundos)
             await this.cacheService.set(
                 `transaction:${transaction.id}`,
                 TransactionResponseDto.fromEntity(fullTransaction!),
                 60,
             );
 
-            // 9. Invalidar cache de listagem dos usuários envolvidos (incluindo paginação)
             await this.cacheService.delPattern(`transactions:user:${senderId}*`);
             await this.cacheService.delPattern(`transactions:user:${receiver.id}*`);
 
-            // 10. Enviar para RabbitMQ para processamento assíncrono
             this.rabbitClient.emit('transaction.created', {
                 transactionId: transaction.id,
                 senderId: transaction.senderId,
@@ -118,15 +107,12 @@ export class TransactionsService {
                 paymentMethod: transaction.paymentMethod,
             });
 
-            // Registrar métrica de mensagem publicada
             this.metricsService.recordMessagePublished();
 
-            // Log de transação criada
             await this.logsService.logTransactionCreated(transaction.id!, senderId, 201);
 
             return TransactionResponseDto.fromEntity(fullTransaction!);
         } catch (error) {
-            // Log de erro com stack trace
             await this.logsService.logErrorWithStack(
                 error,
                 'TransactionsService.create',
@@ -148,14 +134,12 @@ export class TransactionsService {
         const page = paginationQuery.page || 1;
         const limit = paginationQuery.limit || 10;
 
-        // Verificar cache específico do usuário com paginação
         const cacheKey = `transactions:user:${userId}:page:${page}:limit:${limit}`;
         const cached = await this.cacheService.get<PaginatedResponseDto>(cacheKey);
         if (cached) {
             return cached;
         }
 
-        // Buscar no banco apenas transações do usuário (enviadas ou recebidas) com paginação
         const { data, total } = await this.transactionsRepository.findByUserIdWithPagination(
             userId,
             page,
@@ -164,38 +148,33 @@ export class TransactionsService {
         const transactionsDto = data.map(TransactionResponseDto.fromEntity);
         const response = new PaginatedResponseDto(transactionsDto, total, page, limit);
 
-        // Cachear por 30 segundos (lista muda frequentemente)
         await this.cacheService.set(cacheKey, response, 30);
 
         return response;
     }
 
     async findById(id: string, userId: string): Promise<TransactionResponseDto> {
-        // Verificar cache
+
         const cached = await this.cacheService.get<TransactionResponseDto>(`transaction:${id}`);
         if (cached) {
-            // Validar permissão mesmo com cache
             if (cached.senderId !== userId && cached.receiverId !== userId) {
                 throw new NotFoundException('Transação não encontrada');
             }
             return cached;
         }
 
-        // Buscar no banco
         const transaction = await this.transactionsRepository.findById(id);
 
         if (!transaction) {
             throw new NotFoundException('Transação não encontrada');
         }
 
-        // Validar se o usuário tem permissão para ver esta transação
         if (transaction.senderId !== userId && transaction.receiverId !== userId) {
             throw new NotFoundException('Transação não encontrada');
         }
 
         const response = TransactionResponseDto.fromEntity(transaction);
 
-        // Cachear por 60 segundos
         await this.cacheService.set(`transaction:${id}`, response, 60);
 
         return response;
@@ -213,9 +192,8 @@ export class TransactionsService {
 
         await this.transactionsRepository.updateStatus(id, updateStatusDto.status);
 
-        // Invalidar caches relacionados
+
         await this.cacheService.del(`transaction:${id}`);
-        // Invalidar cache de ambos os usuários envolvidos
         await this.cacheService.del(`transactions:user:${transaction.senderId}`);
         await this.cacheService.del(`transactions:user:${transaction.receiverId}`);
 
@@ -237,7 +215,6 @@ export class TransactionsService {
             return cached;
         }
 
-        // Buscar TODAS as transações do sistema com paginação
         const { data, total } = await this.transactionsRepository.findAllWithPagination(
             page,
             limit,
@@ -245,7 +222,6 @@ export class TransactionsService {
         const transactionsDto = data.map(TransactionResponseDto.fromEntity);
         const response = new PaginatedResponseDto(transactionsDto, total, page, limit);
 
-        // Cachear por 30 segundos
         await this.cacheService.set(cacheKey, response, 30);
 
         return response;

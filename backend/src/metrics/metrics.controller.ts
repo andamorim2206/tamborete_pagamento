@@ -16,19 +16,11 @@ import { MetricsService } from './metrics.service';
 export class MetricsController {
     constructor(private readonly metricsService: MetricsService) { }
 
-    /**
-     * GET /metrics
-     * Retorna métricas de Redis, RabbitMQ e API
-     */
     @Get()
     getMetrics() {
         return this.metricsService.getAllMetrics();
     }
 
-    /**
-     * GET /metrics/redis
-     * Retorna apenas métricas do Redis
-     */
     @Get('redis')
     getRedisMetrics() {
         return {
@@ -37,10 +29,7 @@ export class MetricsController {
         };
     }
 
-    /**
-     * GET /metrics/rabbitmq
-     * Retorna apenas métricas do RabbitMQ
-     */
+
     @Get('rabbitmq')
     getRabbitMQMetrics() {
         return {
@@ -49,10 +38,7 @@ export class MetricsController {
         };
     }
 
-    /**
-     * GET /metrics/api
-     * Retorna apenas métricas da API
-     */
+ 
     @Get('api')
     getApiMetrics() {
         return {
@@ -61,10 +47,6 @@ export class MetricsController {
         };
     }
 
-    /**
-     * GET /metrics/summary
-     * Log detalhado no console + retorna métricas
-     */
     @Get('summary')
     getSummary() {
         this.metricsService.logSummary();

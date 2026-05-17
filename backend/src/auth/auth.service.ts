@@ -25,14 +25,12 @@ export class AuthService {
 
     async login(loginDto: LoginDto): Promise<LoginResponseDto> {
         try {
-            // 1. Buscar usuário por email
             const user = await this.usersRepository.findByEmail(loginDto.email);
 
             if (!user) {
                 throw new UnauthorizedException('Email ou senha incorretos');
             }
 
-            // 2. Validar senha
             const isPasswordValid = await bcrypt.compare(
                 loginDto.password,
                 user.password!,
@@ -42,10 +40,8 @@ export class AuthService {
                 throw new UnauthorizedException('Email ou senha incorretos');
             }
 
-            // 3. Desativar tokens anteriores do usuário
             await this.authRepository.deactivateAllUserTokens(user.id!);
 
-            // 4. Gerar novo token JWT
             const payload = {
                 sub: user.id!,
                 email: user.email!,
@@ -58,24 +54,19 @@ export class AuthService {
                 expiresIn: `${expiresIn}s`,
             });
 
-            // 5. Calcular data de expiração
             const expiresAt = new Date();
             expiresAt.setSeconds(expiresAt.getSeconds() + expiresIn);
 
-            // 6. Salvar token no banco
             await this.authRepository.createToken(user.id!, token, expiresAt);
 
-            // 7. Log de login
             await this.logsService.logUserLogin(user.id!, 200, user.email!);
 
-            // 8. Retornar resposta
             return new LoginResponseDto(token, expiresIn, {
                 id: user.id!,
                 name: user.name!,
                 email: user.email!,
             });
         } catch (error) {
-            // Log de erro de login
             if (error instanceof UnauthorizedException) {
                 await this.logsService.createLog({
                     typeLog: LogType.ERROR,
@@ -99,14 +90,12 @@ export class AuthService {
         try {
             const payload = this.jwtService.verify(token);
 
-            // Verificar se o token está ativo no banco
             const userToken = await this.authRepository.findByToken(token);
 
             if (!userToken || !userToken.active) {
                 throw new UnauthorizedException('Token inválido ou expirado');
             }
 
-            // Verificar se o token expirou
             if (new Date() > userToken.expiresAt) {
                 await this.authRepository.deactivateToken(userToken.id);
                 throw new UnauthorizedException('Token expirado');

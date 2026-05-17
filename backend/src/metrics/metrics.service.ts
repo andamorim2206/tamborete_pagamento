@@ -1,14 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 
-/**
- * SERVIÇO DE MÉTRICAS
- * 
- * Coleta e armazena métricas de:
- * - Redis (cache hit/miss, latência)
- * - RabbitMQ (mensagens, latência de processamento)
- * - API (requisições por endpoint)
- */
-
 export interface RedisMetrics {
     operations: number;
     hits: number;
@@ -42,7 +33,6 @@ export interface ApiMetrics {
 export class MetricsService {
     private readonly logger = new Logger(MetricsService.name);
 
-    // Redis metrics
     private redisOperations = 0;
     private redisHits = 0;
     private redisMisses = 0;
@@ -54,19 +44,14 @@ export class MetricsService {
         delPattern: 0,
     };
 
-    // RabbitMQ metrics
     private rabbitMessagesPublished = 0;
     private rabbitMessagesConsumed = 0;
     private rabbitMessagesFailed = 0;
     private rabbitTotalProcessingTime = 0;
 
-    // API metrics
     private apiTotalRequests = 0;
     private apiRequestsByEndpoint: Record<string, number> = {};
 
-    /**
-     * REDIS METRICS
-     */
 
     recordRedisOperation(
         operation: 'get' | 'set' | 'del' | 'delPattern',
@@ -117,9 +102,6 @@ export class MetricsService {
         };
     }
 
-    /**
-     * RABBITMQ METRICS
-     */
 
     recordMessagePublished(): void {
         this.rabbitMessagesPublished++;
@@ -164,9 +146,6 @@ export class MetricsService {
         };
     }
 
-    /**
-     * API METRICS
-     */
 
     recordApiRequest(endpoint: string): void {
         this.apiTotalRequests++;
@@ -181,10 +160,6 @@ export class MetricsService {
         };
     }
 
-    /**
-     * ALL METRICS
-     */
-
     getAllMetrics() {
         return {
             redis: this.getRedisMetrics(),
@@ -194,34 +169,25 @@ export class MetricsService {
         };
     }
 
-    /**
-     * RESET METRICS (útil para testes)
-     */
 
     resetMetrics(): void {
-        // Redis
         this.redisOperations = 0;
         this.redisHits = 0;
         this.redisMisses = 0;
         this.redisTotalLatency = 0;
         this.redisOperationsByType = { get: 0, set: 0, del: 0, delPattern: 0 };
 
-        // RabbitMQ
         this.rabbitMessagesPublished = 0;
         this.rabbitMessagesConsumed = 0;
         this.rabbitMessagesFailed = 0;
         this.rabbitTotalProcessingTime = 0;
 
-        // API
         this.apiTotalRequests = 0;
         this.apiRequestsByEndpoint = {};
 
         this.logger.warn('🔄 Métricas resetadas');
     }
 
-    /**
-     * LOG SUMÁRIO (chamado periodicamente)
-     */
 
     logSummary(): void {
         const metrics = this.getAllMetrics();
@@ -230,17 +196,14 @@ export class MetricsService {
         this.logger.log('📊 SUMÁRIO DE MÉTRICAS');
         this.logger.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-        // Redis
         this.logger.log(
             `🔴 REDIS: ${metrics.redis.operations} operações | Hit Rate: ${metrics.redis.hitRate}% | Latência Média: ${metrics.redis.avgLatency}ms`,
         );
 
-        // RabbitMQ
         this.logger.log(
             `🐰 RABBITMQ: ${metrics.rabbitmq.messagesPublished} publicadas | ${metrics.rabbitmq.messagesConsumed} consumidas | Success Rate: ${metrics.rabbitmq.successRate}%`,
         );
 
-        // API
         this.logger.log(
             `🌐 API: ${metrics.api.totalRequests} requisições totais`,
         );

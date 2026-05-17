@@ -20,11 +20,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
 
     async validate(payload: any) {
-        // Payload contém: { sub: userId, email, name, role }
-
-        // Opcional: Verificar se o token ainda está ativo no banco
-        // (previne uso de tokens após logout)
-
         return {
             id: payload.sub,
             email: payload.email,
