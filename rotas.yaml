@@ -1,0 +1,545 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: Tamborete Pay
+meta:
+  id: wrk_db7e9d4a59dc462ca3d36fc0c84b770b
+  created: 1778867867503
+  modified: 1778867867503
+  description: ""
+collection:
+  - url: "{{ _.api }}users"
+    name: Criação do usuario
+    meta:
+      id: req_5e4b6fe2b0fe43bd979863ac1168b9c8
+      created: 1778867879315
+      modified: 1779028934491
+      isPrivate: false
+      description: ""
+      sortKey: -1778867879315
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"name": "Admin Master",
+          "email": "admin@example.com",
+          "password": "Senha@123",
+          "role": "ADMIN"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: "{{ _.api }}users"
+    name: Listar Usuarios
+    meta:
+      id: req_7c29696aeec94c7b9e9b43fd4adc55fe
+      created: 1778868097500
+      modified: 1778873331206
+      isPrivate: false
+      description: ""
+      sortKey: -1778868097500
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+      - name: Authorization
+        value: Bearer {% response 'body', 'req_6b660cb536924206b10ebce9e468b5e9',
+          'b64::JC5hY2Nlc3NUb2tlbg==::46b', 'never', 60 %}
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: "{{ _.api }}users/506f3fe6-117c-4061-93eb-8b875022dda3"
+    name: Listar usuario por id
+    meta:
+      id: req_e857ecd3245644ec98757294b20d6830
+      created: 1778868152300
+      modified: 1778934519416
+      isPrivate: false
+      description: ""
+      sortKey: -1778868152300
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: "{{ _.api }}auth/login"
+    name: Login
+    meta:
+      id: req_6b660cb536924206b10ebce9e468b5e9
+      created: 1778870983946
+      modified: 1779029038465
+      isPrivate: false
+      description: ""
+      sortKey: -1778870983946
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "email": "admin@example.com",
+          "password": "Senha@123"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: "{{ _.api }}transactions"
+    name: Trasanctions
+    meta:
+      id: req_94ca7333aac14e51bd182e733ff25056
+      created: 1778876690911
+      modified: 1778937966345
+      isPrivate: false
+      description: ""
+      sortKey: -1778876690911
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"receiverEmail": "andre@example.com",
+           "amount": 1.50,
+           "paymentMethod": "PIX"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+      - name: Authorization
+        value: Bearer {% response 'body', 'req_6b660cb536924206b10ebce9e468b5e9',
+          'b64::JC5hY2Nlc3NUb2tlbg==::46b', 'never', 60 %}
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: "{{ _.api }}transactions"
+    name: Listar Transação
+    meta:
+      id: req_94d5bc6964a14213b7dc01e745b13bb0
+      created: 1778877412410
+      modified: 1778934455357
+      isPrivate: false
+      description: ""
+      sortKey: -1778867988407.5
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+      - name: Authorization
+        value: Bearer {% response 'body', 'req_6b660cb536924206b10ebce9e468b5e9',
+          'b64::JC5hY2Nlc3NUb2tlbg==::46b', 'never', 60 %}
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: "{{ _.api }}transactions/506f3fe6-117c-4061-93eb-8b875022dda3"
+    name: Listar Transação por id
+    meta:
+      id: req_9deb1131967741e8af25aecf687ef5a3
+      created: 1778877476453
+      modified: 1778934511672
+      isPrivate: false
+      description: ""
+      sortKey: -1778877476453
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+      - name: Authorization
+        value: Bearer {% response 'body', 'req_6b660cb536924206b10ebce9e468b5e9',
+          'b64::JC5hY2Nlc3NUb2tlbg==::46b', 'never', 60 %}
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: "{{ _.api }}metrics/rabbitmq"
+    name: Métricas RabbitMq
+    meta:
+      id: req_bc41c7fed8be4361bb8514ff8e25b975
+      created: 1778884982271
+      modified: 1778885094527
+      isPrivate: false
+      description: ""
+      sortKey: -1778868042953.75
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+      - name: Authorization
+        value: Bearer {% response 'body', 'req_6b660cb536924206b10ebce9e468b5e9',
+          'b64::JC5hY2Nlc3NUb2tlbg==::46b', 'never', 60 %}
+        description: ""
+        disabled: true
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: "{{ _.api }}metrics/summary"
+    name: Métricas summary
+    meta:
+      id: req_e3a70c52f5134f76a770b347f07b87c3
+      created: 1778885042723
+      modified: 1778971494579
+      isPrivate: false
+      description: ""
+      sortKey: -1778885042723
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: "{{ _.api }}metrics/redis"
+    name: Métricas Redis
+    meta:
+      id: req_edcc7388b2d045e4a3b658b11ce3aefb
+      created: 1778885104861
+      modified: 1778885113517
+      isPrivate: false
+      description: ""
+      sortKey: -1778868015680.625
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+      - name: Authorization
+        value: Bearer {% response 'body', 'req_6b660cb536924206b10ebce9e468b5e9',
+          'b64::JC5hY2Nlc3NUb2tlbg==::46b', 'never', 60 %}
+        description: ""
+        disabled: true
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: "{{ _.api }}metrics/api"
+    name: Métricas Api
+    meta:
+      id: req_0b599c7cf5be438e82418db78d5fc8ea
+      created: 1778885137768
+      modified: 1778885141727
+      isPrivate: false
+      description: ""
+      sortKey: -1778868002044.0625
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+      - name: Authorization
+        value: Bearer {% response 'body', 'req_6b660cb536924206b10ebce9e468b5e9',
+          'b64::JC5hY2Nlc3NUb2tlbg==::46b', 'never', 60 %}
+        description: ""
+        disabled: true
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: "{{ _.api }}transactions/24a96973-7b17-4f17-bca1-e40420c458ea/status"
+    name: Atualizar status da transação
+    meta:
+      id: req_a79055a38068467a8d6ac4e0915bc2fc
+      created: 1778895991354
+      modified: 1778896196204
+      isPrivate: false
+      description: ""
+      sortKey: -1778895991354
+    method: PATCH
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"status": "FAILED"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+      - name: Authorization
+        value: Bearer {% response 'body', 'req_6b660cb536924206b10ebce9e468b5e9',
+          'b64::JC5hY2Nlc3NUb2tlbg==::46b', 'never', 60 %}
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: "{{ _.api }}auth/me"
+    name: Meus Dados
+    meta:
+      id: req_47c43192f0c14df1b5d174b1f120a46a
+      created: 1778937091715
+      modified: 1778937130505
+      isPrivate: false
+      description: ""
+      sortKey: -1778868124900
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+      - name: Authorization
+        value: Bearer {% response 'body', 'req_6b660cb536924206b10ebce9e468b5e9',
+          'b64::JC5hY2Nlc3NUb2tlbg==::46b', 'never', 60 %}
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: "{{ _.api }}transactions/admin/all"
+    name: Listar Transação Admin
+    meta:
+      id: req_b83206630a8840febe40afdc98f2d875
+      created: 1779028988267
+      modified: 1779029004662
+      isPrivate: false
+      description: ""
+      sortKey: -1778867933861.25
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+      - name: Authorization
+        value: Bearer {% response 'body', 'req_6b660cb536924206b10ebce9e468b5e9',
+          'b64::JC5hY2Nlc3NUb2tlbg==::46b', 'never', 60 %}
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: "{{ _.api }}logs"
+    name: Logs
+    meta:
+      id: req_77d496086a804c71821d73e31649426b
+      created: 1779044116847
+      modified: 1779044145960
+      isPrivate: false
+      description: ""
+      sortKey: -1778867906588.125
+    method: GET
+    parameters:
+      - name: page
+        value: "1"
+        description: ""
+        disabled: false
+      - name: limit
+        value: "20"
+        description: ""
+        disabled: false
+    headers:
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+      - name: Authorization
+        value: Bearer {% response 'body', 'req_6b660cb536924206b10ebce9e468b5e9',
+          'b64::JC5hY2Nlc3NUb2tlbg==::46b', 'never', 60 %}
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: "{{ _.api }}logs/fd752193-1d86-4302-b3c6-fab6c1aa237f"
+    name: Logs by id
+    meta:
+      id: req_97139bf60307470d9b7c6973fb7d1246
+      created: 1779044174413
+      modified: 1779044190345
+      isPrivate: false
+      description: ""
+      sortKey: -1778867892951.5625
+    method: GET
+    parameters:
+      - name: page
+        value: "1"
+        description: ""
+        disabled: false
+      - name: limit
+        value: "20"
+        description: ""
+        disabled: false
+    headers:
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+      - name: Authorization
+        value: Bearer {% response 'body', 'req_6b660cb536924206b10ebce9e468b5e9',
+          'b64::JC5hY2Nlc3NUb2tlbg==::46b', 'never', 60 %}
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: "{{ _.api }}logs/transaction/2377935d-0e51-4bff-8dd4-df0a78054805"
+    name: Logs by transaction
+    meta:
+      id: req_6a1447266a6147c09b34127e28d695ee
+      created: 1779044206316
+      modified: 1779044234972
+      isPrivate: false
+      description: ""
+      sortKey: -1778867886133.2812
+    method: GET
+    parameters:
+      - name: page
+        value: "1"
+        description: ""
+        disabled: false
+      - name: limit
+        value: "20"
+        description: ""
+        disabled: false
+    headers:
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+      - name: Authorization
+        value: Bearer {% response 'body', 'req_6b660cb536924206b10ebce9e468b5e9',
+          'b64::JC5hY2Nlc3NUb2tlbg==::46b', 'never', 60 %}
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_86d401780eded776492b11b26c87a1f5c7c46294
+    created: 1778867867512
+    modified: 1778867867512
+environments:
+  name: Base Environment
+  meta:
+    id: env_86d401780eded776492b11b26c87a1f5c7c46294
+    created: 1778867867507
+    modified: 1778867915343
+    isPrivate: false
+  data:
+    api: http://localhost:3000/
