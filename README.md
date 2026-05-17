@@ -24,7 +24,7 @@ cd tamborete-pagamentos
 #### 1.2. Executar o setup
 
 ```bash
-./setup.sh
+chmod +x setup.sh && ./setup.sh
 ```
 
 O script irá:
