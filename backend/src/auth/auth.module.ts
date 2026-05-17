@@ -10,11 +10,13 @@ import { UserToken } from './entities/user-token.entity';
 import { UsersModule } from '../users/users.module';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { LogsModule } from '../logs/logs.module';
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([UserToken]),
         UsersModule,
+        LogsModule,
         PassportModule,
         JwtModule.registerAsync({
             imports: [ConfigModule],

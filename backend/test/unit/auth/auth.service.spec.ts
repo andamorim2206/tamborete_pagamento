@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { AuthService } from '../../../src/auth/auth.service';
 import { AuthRepository } from '../../../src/auth/auth.repository';
 import { UsersRepository } from '../../../src/users/users.repository';
+import { LogsService } from '../../../src/logs/logs.service';
 import * as bcrypt from 'bcrypt';
 
 // Mock do bcrypt para todos os testes
@@ -30,6 +31,7 @@ describe('AuthService', () => {
         name: 'João Silva',
         email: 'joao@example.com',
         password: '$2b$10$hashedpassword',
+        role: 'USER',
         createdAt: new Date(),
         updatedAt: new Date(),
     };
@@ -54,6 +56,13 @@ describe('AuthService', () => {
             verify: jest.fn(),
         };
 
+        const mockLogsService = {
+            createLog: jest.fn(),
+            logUserLogin: jest.fn(),
+            logError: jest.fn(),
+            logErrorWithStack: jest.fn(),
+        };
+
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 AuthService,
@@ -68,6 +77,10 @@ describe('AuthService', () => {
                 {
                     provide: JwtService,
                     useValue: mockJwtService,
+                },
+                {
+                    provide: LogsService,
+                    useValue: mockLogsService,
                 },
             ],
         }).compile();
@@ -148,6 +161,7 @@ describe('AuthService', () => {
                     sub: mockUser.id,
                     email: mockUser.email,
                     name: mockUser.name,
+                    role: 'USER',
                 },
                 { expiresIn: '86400s' }
             );

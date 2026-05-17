@@ -23,6 +23,24 @@ export class TransactionsRepository {
         });
     }
 
+    async findAllWithPagination(
+        page: number,
+        limit: number,
+    ): Promise<{ data: Transaction[]; total: number }> {
+        const skip = (page - 1) * limit;
+
+        const [data, total] = await this.repository
+            .createQueryBuilder('transaction')
+            .leftJoinAndSelect('transaction.sender', 'sender')
+            .leftJoinAndSelect('transaction.receiver', 'receiver')
+            .orderBy('transaction.createdAt', 'DESC')
+            .skip(skip)
+            .take(limit)
+            .getManyAndCount();
+
+        return { data, total };
+    }
+
     async findById(id: string): Promise<Transaction | null> {
         return this.repository.findOne({
             where: { id },
@@ -54,6 +72,26 @@ export class TransactionsRepository {
             .where('transaction.senderId = :userId OR transaction.receiverId = :userId', { userId })
             .orderBy('transaction.createdAt', 'DESC')
             .getMany();
+    }
+
+    async findByUserIdWithPagination(
+        userId: string,
+        page: number,
+        limit: number,
+    ): Promise<{ data: Transaction[]; total: number }> {
+        const skip = (page - 1) * limit;
+
+        const [data, total] = await this.repository
+            .createQueryBuilder('transaction')
+            .leftJoinAndSelect('transaction.sender', 'sender')
+            .leftJoinAndSelect('transaction.receiver', 'receiver')
+            .where('transaction.senderId = :userId OR transaction.receiverId = :userId', { userId })
+            .orderBy('transaction.createdAt', 'DESC')
+            .skip(skip)
+            .take(limit)
+            .getManyAndCount();
+
+        return { data, total };
     }
 
     async updateStatus(id: string, status: TransactionStatus): Promise<void> {

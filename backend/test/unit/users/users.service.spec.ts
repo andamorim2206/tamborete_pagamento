@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { UsersService } from '../../../src/users/users.service';
 import { UsersRepository } from '../../../src/users/users.repository';
+import { LogsService } from '../../../src/logs/logs.service';
 import * as bcrypt from 'bcrypt';
 
 // Mock do bcrypt para todos os testes
@@ -37,12 +38,23 @@ describe('UsersService', () => {
             findAll: jest.fn(),
         };
 
+        const mockLogsService = {
+            createLog: jest.fn(),
+            logUserCreated: jest.fn(),
+            logError: jest.fn(),
+            logErrorWithStack: jest.fn(),
+        };
+
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 UsersService,
                 {
                     provide: UsersRepository,
                     useValue: mockUsersRepository,
+                },
+                {
+                    provide: LogsService,
+                    useValue: mockLogsService,
                 },
             ],
         }).compile();
@@ -106,6 +118,7 @@ describe('UsersService', () => {
                 email: 'joao@example.com',
                 password: '$2b$10$hashedpassword',
                 balance: 1000.00,
+                role: 'USER',
             });
         });
 

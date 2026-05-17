@@ -1,0 +1,31 @@
+### Login como usuário admin (pedro@example.com)
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "pedro@example.com",
+  "password": "Senha@123"
+}
+
+### Login como usuário normal (jose@example.com)
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "jose@example.com",
+  "password": "Senha@123"
+}
+
+### Buscar TODAS as transações (apenas para ADMIN)
+### Copie o token do admin acima e cole abaixo
+GET http://localhost:3000/transactions/admin/all?page=1&limit=10
+Authorization: Bearer SEU_TOKEN_ADMIN_AQUI
+
+### Buscar TODAS as transações com usuário normal (deve retornar 403)
+### Copie o token do jose acima e cole abaixo
+GET http://localhost:3000/transactions/admin/all?page=1&limit=10
+Authorization: Bearer SEU_TOKEN_USER_NORMAL_AQUI
+
+### Buscar transações do usuário (endpoint normal - funciona para ambos)
+GET http://localhost:3000/transactions?page=1&limit=10
+Authorization: Bearer SEU_TOKEN_AQUI

@@ -18,80 +18,98 @@ const microservices_1 = require("@nestjs/microservices");
 const transactions_repository_1 = require("./transactions.repository");
 const users_repository_1 = require("../users/users.repository");
 const transaction_response_dto_1 = require("./dto/transaction-response.dto");
+const paginated_response_dto_1 = require("./dto/paginated-response.dto");
 const transaction_status_enum_1 = require("./enums/transaction-status.enum");
 const cache_service_1 = require("../cache/cache.service");
 const metrics_service_1 = require("../metrics/metrics.service");
+const logs_service_1 = require("../logs/logs.service");
 let TransactionsService = class TransactionsService {
     transactionsRepository;
     usersRepository;
     cacheService;
     metricsService;
+    logsService;
     rabbitClient;
-    constructor(transactionsRepository, usersRepository, cacheService, metricsService, rabbitClient) {
+    constructor(transactionsRepository, usersRepository, cacheService, metricsService, logsService, rabbitClient) {
         this.transactionsRepository = transactionsRepository;
         this.usersRepository = usersRepository;
         this.cacheService = cacheService;
         this.metricsService = metricsService;
+        this.logsService = logsService;
         this.rabbitClient = rabbitClient;
     }
     async create(senderId, createTransactionDto) {
-        const idempotencyKey = `idempotency:${senderId}:${createTransactionDto.receiverEmail}:${createTransactionDto.amount}:${createTransactionDto.paymentMethod}`;
-        const existingTransactionId = await this.cacheService.checkIdempotency(idempotencyKey);
-        if (existingTransactionId) {
-            const existingTransaction = await this.transactionsRepository.findById(existingTransactionId);
-            if (existingTransaction) {
-                throw new common_1.ConflictException({
-                    message: 'Espere um momento, sua proxima transação podera ser processada. Transação idêntica já foi criada recentemente.',
-                    transactionId: existingTransactionId,
-                    transaction: transaction_response_dto_1.TransactionResponseDto.fromEntity(existingTransaction),
-                });
+        try {
+            const idempotencyKey = `idempotency:${senderId}:${createTransactionDto.receiverEmail}:${createTransactionDto.amount}:${createTransactionDto.paymentMethod}`;
+            const existingTransactionId = await this.cacheService.checkIdempotency(idempotencyKey);
+            if (existingTransactionId) {
+                const existingTransaction = await this.transactionsRepository.findById(existingTransactionId);
+                if (existingTransaction) {
+                    throw new common_1.ConflictException({
+                        message: 'Espere um momento, sua proxima transação podera ser processada. Transação idêntica já foi criada recentemente.',
+                        transactionId: existingTransactionId,
+                        transaction: transaction_response_dto_1.TransactionResponseDto.fromEntity(existingTransaction),
+                    });
+                }
             }
+            const receiver = await this.usersRepository.findByEmail(createTransactionDto.receiverEmail);
+            if (!receiver) {
+                throw new common_1.BadRequestException('Usuário destinatário não encontrado');
+            }
+            if (receiver.id === senderId) {
+                throw new common_1.BadRequestException('Não é possível enviar transação para si mesmo');
+            }
+            const sender = await this.usersRepository.findById(senderId);
+            if (!sender) {
+                throw new common_1.BadRequestException('Usuário remetente não encontrado');
+            }
+            const senderBalance = Number(sender.balance) || 0;
+            if (senderBalance < createTransactionDto.amount) {
+                throw new common_1.BadRequestException(`Saldo insuficiente. Saldo disponível: R$ ${senderBalance.toFixed(2)}`);
+            }
+            const transaction = await this.transactionsRepository.create({
+                senderId,
+                receiverId: receiver.id,
+                amount: createTransactionDto.amount,
+                paymentMethod: createTransactionDto.paymentMethod,
+                status: transaction_status_enum_1.TransactionStatus.PENDING,
+            });
+            await this.cacheService.setIdempotency(idempotencyKey, transaction.id, 60);
+            const fullTransaction = await this.transactionsRepository.findById(transaction.id);
+            await this.cacheService.set(`transaction:${transaction.id}`, transaction_response_dto_1.TransactionResponseDto.fromEntity(fullTransaction), 60);
+            await this.cacheService.delPattern(`transactions:user:${senderId}*`);
+            await this.cacheService.delPattern(`transactions:user:${receiver.id}*`);
+            this.rabbitClient.emit('transaction.created', {
+                transactionId: transaction.id,
+                senderId: transaction.senderId,
+                receiverId: transaction.receiverId,
+                amount: transaction.amount,
+                paymentMethod: transaction.paymentMethod,
+            });
+            this.metricsService.recordMessagePublished();
+            await this.logsService.logTransactionCreated(transaction.id, senderId, 201);
+            return transaction_response_dto_1.TransactionResponseDto.fromEntity(fullTransaction);
         }
-        const receiver = await this.usersRepository.findByEmail(createTransactionDto.receiverEmail);
-        if (!receiver) {
-            throw new common_1.BadRequestException('Usuário destinatário não encontrado');
+        catch (error) {
+            await this.logsService.logErrorWithStack(error, 'TransactionsService.create', senderId, {
+                receiverEmail: createTransactionDto.receiverEmail,
+                amount: createTransactionDto.amount,
+                paymentMethod: createTransactionDto.paymentMethod,
+            });
+            throw error;
         }
-        if (receiver.id === senderId) {
-            throw new common_1.BadRequestException('Não é possível enviar transação para si mesmo');
-        }
-        const sender = await this.usersRepository.findById(senderId);
-        if (!sender) {
-            throw new common_1.BadRequestException('Usuário remetente não encontrado');
-        }
-        const senderBalance = Number(sender.balance) || 0;
-        if (senderBalance < createTransactionDto.amount) {
-            throw new common_1.BadRequestException(`Saldo insuficiente. Saldo disponível: R$ ${senderBalance.toFixed(2)}`);
-        }
-        const transaction = await this.transactionsRepository.create({
-            senderId,
-            receiverId: receiver.id,
-            amount: createTransactionDto.amount,
-            paymentMethod: createTransactionDto.paymentMethod,
-            status: transaction_status_enum_1.TransactionStatus.PENDING,
-        });
-        await this.cacheService.setIdempotency(idempotencyKey, transaction.id, 60);
-        const fullTransaction = await this.transactionsRepository.findById(transaction.id);
-        await this.cacheService.set(`transaction:${transaction.id}`, transaction_response_dto_1.TransactionResponseDto.fromEntity(fullTransaction), 60);
-        await this.cacheService.del(`transactions:user:${senderId}`);
-        await this.cacheService.del(`transactions:user:${receiver.id}`);
-        this.rabbitClient.emit('transaction.created', {
-            transactionId: transaction.id,
-            senderId: transaction.senderId,
-            receiverId: transaction.receiverId,
-            amount: transaction.amount,
-            paymentMethod: transaction.paymentMethod,
-        });
-        this.metricsService.recordMessagePublished();
-        return transaction_response_dto_1.TransactionResponseDto.fromEntity(fullTransaction);
     }
-    async findAll(userId) {
-        const cacheKey = `transactions:user:${userId}`;
+    async findAll(userId, paginationQuery) {
+        const page = paginationQuery.page || 1;
+        const limit = paginationQuery.limit || 10;
+        const cacheKey = `transactions:user:${userId}:page:${page}:limit:${limit}`;
         const cached = await this.cacheService.get(cacheKey);
         if (cached) {
             return cached;
         }
-        const transactions = await this.transactionsRepository.findByUserId(userId);
-        const response = transactions.map(transaction_response_dto_1.TransactionResponseDto.fromEntity);
+        const { data, total } = await this.transactionsRepository.findByUserIdWithPagination(userId, page, limit);
+        const transactionsDto = data.map(transaction_response_dto_1.TransactionResponseDto.fromEntity);
+        const response = new paginated_response_dto_1.PaginatedResponseDto(transactionsDto, total, page, limit);
         await this.cacheService.set(cacheKey, response, 30);
         return response;
     }
@@ -126,15 +144,30 @@ let TransactionsService = class TransactionsService {
         const updatedTransaction = await this.transactionsRepository.findById(id);
         return transaction_response_dto_1.TransactionResponseDto.fromEntity(updatedTransaction);
     }
+    async findAllForAdmin(paginationQuery) {
+        const page = paginationQuery.page || 1;
+        const limit = paginationQuery.limit || 10;
+        const cacheKey = `transactions:admin:page:${page}:limit:${limit}`;
+        const cached = await this.cacheService.get(cacheKey);
+        if (cached) {
+            return cached;
+        }
+        const { data, total } = await this.transactionsRepository.findAllWithPagination(page, limit);
+        const transactionsDto = data.map(transaction_response_dto_1.TransactionResponseDto.fromEntity);
+        const response = new paginated_response_dto_1.PaginatedResponseDto(transactionsDto, total, page, limit);
+        await this.cacheService.set(cacheKey, response, 30);
+        return response;
+    }
 };
 exports.TransactionsService = TransactionsService;
 exports.TransactionsService = TransactionsService = __decorate([
     (0, common_1.Injectable)(),
-    __param(4, (0, common_1.Inject)('RABBITMQ_SERVICE')),
+    __param(5, (0, common_1.Inject)('RABBITMQ_SERVICE')),
     __metadata("design:paramtypes", [transactions_repository_1.TransactionsRepository,
         users_repository_1.UsersRepository,
         cache_service_1.CacheService,
         metrics_service_1.MetricsService,
+        logs_service_1.LogsService,
         microservices_1.ClientProxy])
 ], TransactionsService);
 //# sourceMappingURL=transactions.service.js.map

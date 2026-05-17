@@ -5,6 +5,7 @@ import {
     Patch,
     Body,
     Param,
+    Query,
     UseGuards,
     HttpCode,
     HttpStatus,
@@ -14,13 +15,17 @@ import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionStatusDto } from './dto/update-transaction-status.dto';
 import { TransactionResponseDto } from './dto/transaction-response.dto';
+import { PaginationQueryDto } from './dto/pagination-query.dto';
+import { PaginatedResponseDto } from './dto/paginated-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { AdminGuard } from '../common/guards/admin.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 interface AuthUser {
     id: string;
     email: string;
     name: string;
+    role?: string;
 }
 
 @Controller('transactions')
@@ -30,7 +35,7 @@ export class TransactionsController {
 
     @Post()
     @HttpCode(HttpStatus.CREATED)
-    @Throttle({ default: { limit: 5, ttl: 60000 } }) // Máximo 5 transações por minuto
+    @Throttle({ default: { limit: 5, ttl: 60000 } })
     async create(
         @CurrentUser() user: AuthUser,
         @Body() createTransactionDto: CreateTransactionDto,
@@ -41,8 +46,17 @@ export class TransactionsController {
     @Get()
     async findAll(
         @CurrentUser() user: AuthUser,
-    ): Promise<TransactionResponseDto[]> {
-        return this.transactionsService.findAll(user.id);
+        @Query() paginationQuery: PaginationQueryDto,
+    ): Promise<PaginatedResponseDto> {
+        return this.transactionsService.findAll(user.id, paginationQuery);
+    }
+
+    @Get('admin/all')
+    @UseGuards(AdminGuard)
+    async findAllForAdmin(
+        @Query() paginationQuery: PaginationQueryDto,
+    ): Promise<PaginatedResponseDto> {
+        return this.transactionsService.findAllForAdmin(paginationQuery);
     }
 
     @Get(':id')

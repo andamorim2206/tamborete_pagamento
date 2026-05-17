@@ -8,12 +8,14 @@ import { TransactionsRepository } from './transactions.repository';
 import { TransactionsProcessor } from './transactions.processor';
 import { UsersModule } from '../users/users.module';
 import { AuthModule } from '../auth/auth.module';
+import { LogsModule } from '../logs/logs.module';
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([Transaction]),
         UsersModule,
         AuthModule,
+        LogsModule,
         ClientsModule.register([
             {
                 name: 'RABBITMQ_SERVICE',

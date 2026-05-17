@@ -8,30 +8,50 @@ import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { UsersRepository } from './users.repository';
+import { UserRole } from './enums/user-role.enum';
+import { LogsService } from '../logs/logs.service';
 
 @Injectable()
 export class UsersService {
-    constructor(private readonly usersRepository: UsersRepository) { }
+    constructor(
+        private readonly usersRepository: UsersRepository,
+        private readonly logsService: LogsService,
+    ) { }
 
     async create(createUserDto: CreateUserDto): Promise<UserResponseDto> {
-        const existingUser = await this.usersRepository.findByEmail(
-            createUserDto.email,
-        );
+        try {
+            const existingUser = await this.usersRepository.findByEmail(
+                createUserDto.email,
+            );
 
-        if (existingUser) {
-            throw new ConflictException('Email já cadastrado');
+            if (existingUser) {
+                throw new ConflictException('Email já cadastrado');
+            }
+
+            const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+
+            const user = await this.usersRepository.create({
+                name: createUserDto.name,
+                email: createUserDto.email,
+                password: hashedPassword,
+                balance: 1000.00,
+                role: createUserDto.role || UserRole.USER,
+            });
+
+            // Log de criação de usuário
+            await this.logsService.logUserCreated(user.id!, 201, `Usuário ${user.name} criado com sucesso`);
+
+            return UserResponseDto.fromEntity(user);
+        } catch (error) {
+            // Log de erro com stack trace
+            await this.logsService.logErrorWithStack(
+                error,
+                'UsersService.create',
+                undefined,
+                { email: createUserDto.email, name: createUserDto.name }
+            );
+            throw error;
         }
-
-        const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-
-        const user = await this.usersRepository.create({
-            name: createUserDto.name,
-            email: createUserDto.email,
-            password: hashedPassword,
-            balance: 1000.00, // Saldo inicial de R$ 1.000,00
-        });
-
-        return UserResponseDto.fromEntity(user);
     }
 
     async findAll(): Promise<UserResponseDto[]> {

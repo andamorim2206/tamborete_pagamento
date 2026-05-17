@@ -11,11 +11,13 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
 const typeorm_1 = require("typeorm");
+const user_role_enum_1 = require("../enums/user-role.enum");
 let User = class User {
     id;
     name;
     email;
     password;
+    role;
     balance;
     createdAt;
     updatedAt;
@@ -37,6 +39,15 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'varchar', length: 255 }),
     __metadata("design:type", Object)
 ], User.prototype, "password", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        type: 'varchar',
+        length: 50,
+        default: user_role_enum_1.UserRole.USER,
+        comment: 'Tipo de usuário: ADMIN ou USER',
+    }),
+    __metadata("design:type", Object)
+], User.prototype, "role", void 0);
 __decorate([
     (0, typeorm_1.Column)({
         type: 'decimal',

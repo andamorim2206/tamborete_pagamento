@@ -17,6 +17,7 @@ const transactions_repository_1 = require("./transactions.repository");
 const transactions_processor_1 = require("./transactions.processor");
 const users_module_1 = require("../users/users.module");
 const auth_module_1 = require("../auth/auth.module");
+const logs_module_1 = require("../logs/logs.module");
 let TransactionsModule = class TransactionsModule {
 };
 exports.TransactionsModule = TransactionsModule;
@@ -26,6 +27,7 @@ exports.TransactionsModule = TransactionsModule = __decorate([
             typeorm_1.TypeOrmModule.forFeature([transaction_entity_1.Transaction]),
             users_module_1.UsersModule,
             auth_module_1.AuthModule,
+            logs_module_1.LogsModule,
             microservices_1.ClientsModule.register([
                 {
                     name: 'RABBITMQ_SERVICE',

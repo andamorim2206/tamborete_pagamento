@@ -47,24 +47,36 @@ const common_1 = require("@nestjs/common");
 const bcrypt = __importStar(require("bcrypt"));
 const user_response_dto_1 = require("./dto/user-response.dto");
 const users_repository_1 = require("./users.repository");
+const user_role_enum_1 = require("./enums/user-role.enum");
+const logs_service_1 = require("../logs/logs.service");
 let UsersService = class UsersService {
     usersRepository;
-    constructor(usersRepository) {
+    logsService;
+    constructor(usersRepository, logsService) {
         this.usersRepository = usersRepository;
+        this.logsService = logsService;
     }
     async create(createUserDto) {
-        const existingUser = await this.usersRepository.findByEmail(createUserDto.email);
-        if (existingUser) {
-            throw new common_1.ConflictException('Email já cadastrado');
+        try {
+            const existingUser = await this.usersRepository.findByEmail(createUserDto.email);
+            if (existingUser) {
+                throw new common_1.ConflictException('Email já cadastrado');
+            }
+            const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+            const user = await this.usersRepository.create({
+                name: createUserDto.name,
+                email: createUserDto.email,
+                password: hashedPassword,
+                balance: 1000.00,
+                role: createUserDto.role || user_role_enum_1.UserRole.USER,
+            });
+            await this.logsService.logUserCreated(user.id, 201, `Usuário ${user.name} criado com sucesso`);
+            return user_response_dto_1.UserResponseDto.fromEntity(user);
         }
-        const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-        const user = await this.usersRepository.create({
-            name: createUserDto.name,
-            email: createUserDto.email,
-            password: hashedPassword,
-            balance: 1000.00,
-        });
-        return user_response_dto_1.UserResponseDto.fromEntity(user);
+        catch (error) {
+            await this.logsService.logErrorWithStack(error, 'UsersService.create', undefined, { email: createUserDto.email, name: createUserDto.name });
+            throw error;
+        }
     }
     async findAll() {
         const users = await this.usersRepository.findAll();
@@ -81,6 +93,7 @@ let UsersService = class UsersService {
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [users_repository_1.UsersRepository])
+    __metadata("design:paramtypes", [users_repository_1.UsersRepository,
+        logs_service_1.LogsService])
 ], UsersService);
 //# sourceMappingURL=users.service.js.map

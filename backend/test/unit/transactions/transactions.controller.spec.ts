@@ -124,21 +124,44 @@ describe('TransactionsController', () => {
      */
     describe('GET /transactions', () => {
         it('deve retornar lista de transações', async () => {
-            const mockList = [mockTransactionResponse];
+            const mockList = {
+                data: [mockTransactionResponse],
+                meta: {
+                    total: 1,
+                    page: 1,
+                    limit: 10,
+                    totalPages: 1,
+                    hasNextPage: false,
+                    hasPreviousPage: false,
+                },
+            };
+            const paginationQuery = { page: 1, limit: 10 };
             service.findAll.mockResolvedValue(mockList as any);
 
-            const result = await controller.findAll(mockUser);
+            const result = await controller.findAll(mockUser, paginationQuery);
 
             expect(result).toEqual(mockList);
-            expect(service.findAll).toHaveBeenCalledWith(mockUser.id);
+            expect(service.findAll).toHaveBeenCalledWith(mockUser.id, paginationQuery);
         });
 
         it('deve retornar array vazio se não há transações', async () => {
-            service.findAll.mockResolvedValue([]);
+            const emptyList = {
+                data: [],
+                meta: {
+                    total: 0,
+                    page: 1,
+                    limit: 10,
+                    totalPages: 0,
+                    hasNextPage: false,
+                    hasPreviousPage: false,
+                },
+            };
+            const paginationQuery = { page: 1, limit: 10 };
+            service.findAll.mockResolvedValue(emptyList as any);
 
-            const result = await controller.findAll(mockUser);
+            const result = await controller.findAll(mockUser, paginationQuery);
 
-            expect(result).toEqual([]);
+            expect(result).toEqual(emptyList);
         });
     });
 

@@ -18,7 +18,9 @@ const throttler_1 = require("@nestjs/throttler");
 const transactions_service_1 = require("./transactions.service");
 const create_transaction_dto_1 = require("./dto/create-transaction.dto");
 const update_transaction_status_dto_1 = require("./dto/update-transaction-status.dto");
+const pagination_query_dto_1 = require("./dto/pagination-query.dto");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
+const admin_guard_1 = require("../common/guards/admin.guard");
 const current_user_decorator_1 = require("../auth/decorators/current-user.decorator");
 let TransactionsController = class TransactionsController {
     transactionsService;
@@ -28,8 +30,11 @@ let TransactionsController = class TransactionsController {
     async create(user, createTransactionDto) {
         return this.transactionsService.create(user.id, createTransactionDto);
     }
-    async findAll(user) {
-        return this.transactionsService.findAll(user.id);
+    async findAll(user, paginationQuery) {
+        return this.transactionsService.findAll(user.id, paginationQuery);
+    }
+    async findAllForAdmin(paginationQuery) {
+        return this.transactionsService.findAllForAdmin(paginationQuery);
     }
     async findById(user, id) {
         return this.transactionsService.findById(id, user.id);
@@ -52,10 +57,19 @@ __decorate([
 __decorate([
     (0, common_1.Get)(),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, pagination_query_dto_1.PaginationQueryDto]),
     __metadata("design:returntype", Promise)
 ], TransactionsController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)('admin/all'),
+    (0, common_1.UseGuards)(admin_guard_1.AdminGuard),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [pagination_query_dto_1.PaginationQueryDto]),
+    __metadata("design:returntype", Promise)
+], TransactionsController.prototype, "findAllForAdmin", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),

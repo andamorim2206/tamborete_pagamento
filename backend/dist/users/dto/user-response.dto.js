@@ -1,11 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserResponseDto = void 0;
+const user_role_enum_1 = require("../enums/user-role.enum");
 class UserResponseDto {
     id;
     name;
     email;
     balance;
+    role;
     createdAt;
     updatedAt;
     static fromEntity(user) {
@@ -14,6 +16,7 @@ class UserResponseDto {
         response.name = user.name;
         response.email = user.email;
         response.balance = Number(user.balance) || 0;
+        response.role = user.role || user_role_enum_1.UserRole.USER;
         response.createdAt = user.createdAt;
         response.updatedAt = user.updatedAt;
         return response;

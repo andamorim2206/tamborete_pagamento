@@ -6,6 +6,7 @@ export interface LoginResponse {
     id: string;
     name: string;
     email: string;
+    role?: string;
   };
 }
 
@@ -14,6 +15,7 @@ export interface User {
   name: string;
   email: string;
   balance: number;
+  role?: string;
   createdAt: string;
 }
 
@@ -31,6 +33,41 @@ export interface Transaction {
   createdAt: string;
 }
 
+export interface PaginatedTransactions {
+  data: Transaction[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
+}
+
+export interface Log {
+  id: string;
+  typeLog: string;
+  statusCode?: number;
+  message?: string;
+  userId?: string;
+  transactionId?: string;
+  metadata?: Record<string, any>;
+  createdAt: string;
+}
+
+export interface PaginatedLogs {
+  data: Log[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
+}
+
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
     super(message);
@@ -41,6 +78,7 @@ export async function registerUser(data: {
   name: string;
   email: string;
   password: string;
+  role?: string;
 }): Promise<User> {
   const response = await fetch(`${API_URL}/users`, {
     method: 'POST',
@@ -131,13 +169,13 @@ export async function getUserById(userId: string): Promise<User> {
   return response.json();
 }
 
-export async function getTransactions(): Promise<Transaction[]> {
+export async function getTransactions(page: number = 1, limit: number = 10): Promise<PaginatedTransactions> {
   const token = getToken();
   if (!token) {
     throw new ApiError(401, 'Não autenticado');
   }
 
-  const response = await fetch(`${API_URL}/transactions`, {
+  const response = await fetch(`${API_URL}/transactions?page=${page}&limit=${limit}`, {
     headers: {
       'Authorization': `Bearer ${token}`,
     },
@@ -145,6 +183,82 @@ export async function getTransactions(): Promise<Transaction[]> {
 
   if (!response.ok) {
     throw new ApiError(response.status, 'Erro ao buscar transações');
+  }
+
+  return response.json();
+}
+
+export async function getAdminTransactions(page: number = 1, limit: number = 10): Promise<PaginatedTransactions> {
+  const token = getToken();
+  if (!token) {
+    throw new ApiError(401, 'Não autenticado');
+  }
+
+  const response = await fetch(`${API_URL}/transactions/admin/all?page=${page}&limit=${limit}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new ApiError(response.status, 'Erro ao buscar transações');
+  }
+
+  return response.json();
+}
+
+export async function getLogs(page: number = 1, limit: number = 10): Promise<PaginatedLogs> {
+  const token = getToken();
+  if (!token) {
+    throw new ApiError(401, 'Não autenticado');
+  }
+
+  const response = await fetch(`${API_URL}/logs?page=${page}&limit=${limit}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new ApiError(response.status, 'Erro ao buscar logs');
+  }
+
+  return response.json();
+}
+
+export async function getLogById(id: string): Promise<Log> {
+  const token = getToken();
+  if (!token) {
+    throw new ApiError(401, 'Não autenticado');
+  }
+
+  const response = await fetch(`${API_URL}/logs/${id}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new ApiError(response.status, 'Erro ao buscar log');
+  }
+
+  return response.json();
+}
+
+export async function getLogsByTransactionId(transactionId: string): Promise<Log[]> {
+  const token = getToken();
+  if (!token) {
+    throw new ApiError(401, 'Não autenticado');
+  }
+
+  const response = await fetch(`${API_URL}/logs/transaction/${transactionId}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new ApiError(response.status, 'Erro ao buscar logs da transação');
   }
 
   return response.json();

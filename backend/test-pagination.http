@@ -1,0 +1,64 @@
+### 🧪 Testes de Paginação - API de Transações
+
+@baseUrl = http://localhost:3000
+@token = SEU_TOKEN_JWT_AQUI
+
+### 1. Listar transações - Página 1 (10 itens por padrão)
+GET {{baseUrl}}/transactions
+Authorization: Bearer {{token}}
+
+### 2. Listar transações - Página 1 com 5 itens
+GET {{baseUrl}}/transactions?page=1&limit=5
+Authorization: Bearer {{token}}
+
+### 3. Listar transações - Página 2 com 5 itens
+GET {{baseUrl}}/transactions?page=2&limit=5
+Authorization: Bearer {{token}}
+
+### 4. Listar transações - Página 1 com 20 itens
+GET {{baseUrl}}/transactions?page=1&limit=20
+Authorization: Bearer {{token}}
+
+### 5. Listar transações - Testar limite máximo (100 itens)
+GET {{baseUrl}}/transactions?page=1&limit=100
+Authorization: Bearer {{token}}
+
+### 6. Listar transações - Testar limite inválido (deve falhar - máximo 100)
+GET {{baseUrl}}/transactions?page=1&limit=150
+Authorization: Bearer {{token}}
+
+### 7. Listar transações - Página inválida (deve retornar erro ou lista vazia)
+GET {{baseUrl}}/transactions?page=0&limit=10
+Authorization: Bearer {{token}}
+
+### 8. Listar transações - Sem parâmetros (usa defaults: page=1, limit=10)
+GET {{baseUrl}}/transactions
+Authorization: Bearer {{token}}
+
+###
+# Resposta esperada:
+# {
+#   "data": [
+#     {
+#       "id": "uuid",
+#       "senderId": "uuid",
+#       "senderName": "Nome",
+#       "senderEmail": "email@example.com",
+#       "receiverId": "uuid",
+#       "receiverName": "Nome",
+#       "receiverEmail": "email@example.com",
+#       "amount": 100.00,
+#       "paymentMethod": "PIX",
+#       "status": "COMPLETED",
+#       "createdAt": "2024-01-01T00:00:00.000Z"
+#     }
+#   ],
+#   "meta": {
+#     "total": 50,
+#     "page": 1,
+#     "limit": 10,
+#     "totalPages": 5,
+#     "hasNextPage": true,
+#     "hasPreviousPage": false
+#   }
+# }

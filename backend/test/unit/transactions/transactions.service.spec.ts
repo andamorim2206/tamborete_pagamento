@@ -5,6 +5,7 @@ import { TransactionsRepository } from '../../../src/transactions/transactions.r
 import { UsersRepository } from '../../../src/users/users.repository';
 import { CacheService } from '../../../src/cache/cache.service';
 import { MetricsService } from '../../../src/metrics/metrics.service';
+import { LogsService } from '../../../src/logs/logs.service';
 import { PaymentMethod } from '../../../src/transactions/enums/payment-method.enum';
 import { TransactionStatus } from '../../../src/transactions/enums/transaction-status.enum';
 
@@ -63,6 +64,7 @@ describe('TransactionsService', () => {
             findById: jest.fn(),
             findAll: jest.fn(),
             findByUserId: jest.fn(),
+            findByUserIdWithPagination: jest.fn(),
             updateStatus: jest.fn(),
         };
 
@@ -75,6 +77,7 @@ describe('TransactionsService', () => {
             get: jest.fn(),
             set: jest.fn(),
             del: jest.fn(),
+            delPattern: jest.fn(),
             checkIdempotency: jest.fn(),
             setIdempotency: jest.fn(),
         };
@@ -88,6 +91,16 @@ describe('TransactionsService', () => {
 
         const mockRabbitClient = {
             emit: jest.fn(),
+        };
+
+        const mockLogsService = {
+            createLog: jest.fn(),
+            logTransactionCreated: jest.fn(),
+            logTransactionProcessing: jest.fn(),
+            logTransactionCompleted: jest.fn(),
+            logTransactionFailed: jest.fn(),
+            logError: jest.fn(),
+            logErrorWithStack: jest.fn(),
         };
 
         const module: TestingModule = await Test.createTestingModule({
@@ -108,6 +121,10 @@ describe('TransactionsService', () => {
                 {
                     provide: MetricsService,
                     useValue: mockMetricsService,
+                },
+                {
+                    provide: LogsService,
+                    useValue: mockLogsService,
                 },
                 {
                     provide: 'RABBITMQ_SERVICE',
@@ -259,20 +276,31 @@ describe('TransactionsService', () => {
      */
     describe('findAll', () => {
         const userId = 'user-123';
+        const paginationQuery = { page: 1, limit: 10 };
 
         it('deve retornar do cache se existir', async () => {
-            const cachedData = [
-                { id: 'txn-1', amount: 50 },
-                { id: 'txn-2', amount: 100 },
-            ];
+            const cachedData = {
+                data: [
+                    { id: 'txn-1', amount: 50 },
+                    { id: 'txn-2', amount: 100 },
+                ],
+                meta: {
+                    total: 2,
+                    page: 1,
+                    limit: 10,
+                    totalPages: 1,
+                    hasNextPage: false,
+                    hasPreviousPage: false,
+                },
+            };
 
             cacheService.get.mockResolvedValue(cachedData as any);
 
-            const result = await service.findAll(userId);
+            const result = await service.findAll(userId, paginationQuery);
 
             expect(result).toEqual(cachedData);
             // Não deve buscar no banco se tem cache
-            expect(transactionsRepository.findByUserId).not.toHaveBeenCalled();
+            expect(transactionsRepository.findByUserIdWithPagination).not.toHaveBeenCalled();
         });
 
         /**
@@ -281,20 +309,28 @@ describe('TransactionsService', () => {
          */
         it('deve buscar no banco e cachear se não existe no cache', async () => {
             cacheService.get.mockResolvedValue(null); // Cache vazio
-            transactionsRepository.findByUserId.mockResolvedValue([mockTransaction] as any);
+            transactionsRepository.findByUserIdWithPagination.mockResolvedValue({
+                data: [mockTransaction],
+                total: 1,
+            } as any);
 
-            const result = await service.findAll(userId);
+            const result = await service.findAll(userId, paginationQuery);
 
             expect(result).toBeDefined();
-            expect(result.length).toBeGreaterThan(0);
+            expect(result.data.length).toBeGreaterThan(0);
+            expect(result.meta.total).toBe(1);
 
-            // Deve buscar no banco com userId
-            expect(transactionsRepository.findByUserId).toHaveBeenCalledWith(userId);
+            // Deve buscar no banco com userId e paginação
+            expect(transactionsRepository.findByUserIdWithPagination).toHaveBeenCalledWith(
+                userId,
+                1,
+                10,
+            );
 
-            // Deve cachear o resultado com chave específica do usuário
+            // Deve cachear o resultado com chave específica do usuário e paginação
             expect(cacheService.set).toHaveBeenCalledWith(
-                `transactions:user:${userId}`,
-                expect.any(Array),
+                'transactions:user:user-123:page:1:limit:10',
+                expect.any(Object),
                 30, // TTL de 30 segundos
             );
         });

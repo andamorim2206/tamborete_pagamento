@@ -4,6 +4,7 @@ import { TransactionsRepository } from '../../../src/transactions/transactions.r
 import { UsersRepository } from '../../../src/users/users.repository';
 import { CacheService } from '../../../src/cache/cache.service';
 import { MetricsService } from '../../../src/metrics/metrics.service';
+import { LogsService } from '../../../src/logs/logs.service';
 import { TransactionStatus } from '../../../src/transactions/enums/transaction-status.enum';
 
 /**
@@ -44,6 +45,7 @@ describe('TransactionsProcessor', () => {
             acquireLock: jest.fn(),
             releaseLock: jest.fn(),
             del: jest.fn(),
+            delPattern: jest.fn(),
         };
 
         const mockMetricsService = {
@@ -51,6 +53,17 @@ describe('TransactionsProcessor', () => {
             recordMessagePublished: jest.fn(),
             recordMessageConsumed: jest.fn(),
             recordApiRequest: jest.fn(),
+        };
+
+        const mockLogsService = {
+            createLog: jest.fn(),
+            logTransactionProcessing: jest.fn(),
+            logTransactionCompleted: jest.fn(),
+            logTransactionFailed: jest.fn(),
+            logRabbitMQError: jest.fn(),
+            logRabbitMQSuccess: jest.fn(),
+            logError: jest.fn(),
+            logErrorWithStack: jest.fn(),
         };
 
         const module: TestingModule = await Test.createTestingModule({
@@ -71,6 +84,10 @@ describe('TransactionsProcessor', () => {
                 {
                     provide: MetricsService,
                     useValue: mockMetricsService,
+                },
+                {
+                    provide: LogsService,
+                    useValue: mockLogsService,
                 },
             ],
         }).compile();
@@ -135,9 +152,10 @@ describe('TransactionsProcessor', () => {
 
             // 4. Deve invalidar cache da transação e dos usuários envolvidos
             expect(cacheService.del).toHaveBeenCalledWith('transaction:txn-123');
-            expect(cacheService.del).toHaveBeenCalledWith('transactions:user:sender-456');
-            expect(cacheService.del).toHaveBeenCalledWith('transactions:user:receiver-789');
-            expect(cacheService.del).toHaveBeenCalledTimes(6); // 2 fases * 3 chaves cada
+            expect(cacheService.delPattern).toHaveBeenCalledWith('transactions:user:sender-456*');
+            expect(cacheService.delPattern).toHaveBeenCalledWith('transactions:user:receiver-789*');
+            expect(cacheService.del).toHaveBeenCalledTimes(2); // 1 por fase
+            expect(cacheService.delPattern).toHaveBeenCalledTimes(4); // 2 por fase
 
             // 5. Deve liberar lock
             expect(cacheService.releaseLock).toHaveBeenCalledWith('lock:transaction:txn-123');
@@ -250,18 +268,16 @@ describe('TransactionsProcessor', () => {
 
             await processor.handleTransactionCreated(mockEvent);
 
-            // Deve invalidar 6 vezes (2 fases x 3 chaves):
-            // - 1x transaction:id após PROCESSING
-            // - 1x transactions:user:sender após PROCESSING
-            // - 1x transactions:user:receiver após PROCESSING
-            // - 1x transaction:id após COMPLETED
-            // - 1x transactions:user:sender após COMPLETED
-            // - 1x transactions:user:receiver após COMPLETED
-            expect(cacheService.del).toHaveBeenCalledTimes(6);
+            // Deve invalidar cache:
+            // - 2x transaction:id (PROCESSING e COMPLETED)
+            // - 2x transactions:user:sender* (PROCESSING e COMPLETED)
+            // - 2x transactions:user:receiver* (PROCESSING e COMPLETED)
+            expect(cacheService.del).toHaveBeenCalledTimes(2);
+            expect(cacheService.delPattern).toHaveBeenCalledTimes(4);
 
             expect(cacheService.del).toHaveBeenCalledWith('transaction:txn-123');
-            expect(cacheService.del).toHaveBeenCalledWith('transactions:user:sender-456');
-            expect(cacheService.del).toHaveBeenCalledWith('transactions:user:receiver-789');
+            expect(cacheService.delPattern).toHaveBeenCalledWith('transactions:user:sender-456*');
+            expect(cacheService.delPattern).toHaveBeenCalledWith('transactions:user:receiver-789*');
         });
     });
 

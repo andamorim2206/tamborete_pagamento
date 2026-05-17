@@ -1,18 +1,20 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getCurrentUser, getTransactions, User, Transaction } from '@/lib/api';
+import { getCurrentUser, getTransactions, User, Transaction, PaginatedTransactions } from '@/lib/api';
 
 export default function DashboardPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactions, setTransactions] = useState<PaginatedTransactions | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Função para buscar dados
-  const fetchData = async (showRefreshIndicator = false) => {
+  const fetchData = async (showRefreshIndicator = false, page = currentPage, limit = itemsPerPage) => {
     const token = localStorage.getItem('token');
     if (!token) {
       router.push('/login');
@@ -26,7 +28,7 @@ export default function DashboardPage() {
     try {
       const [userData, transactionsData] = await Promise.all([
         getCurrentUser(),
-        getTransactions(),
+        getTransactions(page, limit),
       ]);
       setUser(userData);
       setTransactions(transactionsData);
@@ -39,7 +41,6 @@ export default function DashboardPage() {
         setLoading(false);
       }
       setIsRefreshing(false);
-      // Se erro 401, redireciona para login
       if (err.status === 401) {
         localStorage.removeItem('token');
         router.push('/login');
@@ -47,21 +48,49 @@ export default function DashboardPage() {
     }
   };
 
+  // Funções de navegação
+  const goToNextPage = () => {
+    if (transactions?.meta.hasNextPage) {
+      const nextPage = currentPage + 1;
+      setCurrentPage(nextPage);
+      fetchData(false, nextPage, itemsPerPage);
+    }
+  };
+
+  const goToPreviousPage = () => {
+    if (transactions?.meta.hasPreviousPage) {
+      const prevPage = currentPage - 1;
+      setCurrentPage(prevPage);
+      fetchData(false, prevPage, itemsPerPage);
+    }
+  };
+
+  const goToPage = (page: number) => {
+    setCurrentPage(page);
+    fetchData(false, page, itemsPerPage);
+  };
+
+  const changeItemsPerPage = (newLimit: number) => {
+    setItemsPerPage(newLimit);
+    setCurrentPage(1);
+    fetchData(false, 1, newLimit);
+  };
+
   // Carregamento inicial
   useEffect(() => {
     fetchData();
   }, [router]);
 
-  // Polling automático a cada 3 segundos
+  // Polling automático a cada 5 segundos (mantém a página atual)
   useEffect(() => {
     const interval = setInterval(() => {
       if (!loading && user) {
-        fetchData(true);
+        fetchData(true, currentPage, itemsPerPage);
       }
-    }, 3000);
+    }, 5000);
 
     return () => clearInterval(interval);
-  }, [loading, user]);
+  }, [loading, user, currentPage, itemsPerPage]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -99,7 +128,7 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-emerald-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-bold text-emerald-700">Tamborete Pagamentos</h1>
             <p className="text-sm text-gray-500">Sistema de Pagamentos</p>
@@ -113,8 +142,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Main Content - Centralizado */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Main Content */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
         <div className="bg-gradient-to-r from-emerald-600 to-green-600 rounded-3xl shadow-xl px-8 py-8 mb-6 text-white text-center">
           <h2 className="text-2xl font-bold mb-2">Bem-vindo, {user.name}!</h2>
@@ -169,18 +198,29 @@ export default function DashboardPage() {
                 </div>
               )}
             </div>
-            <button
-              onClick={() => router.push('/nova-transacao')}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-2 rounded-lg transition-colors shadow-md hover:shadow-lg flex items-center gap-2 text-sm"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Nova Transação
-            </button>
+            <div className="flex items-center gap-2">
+              {user.role === 'ADMIN' && (
+                <button
+                  onClick={() => router.push('/admin')}
+                  className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-5 py-2 rounded-lg transition-colors shadow-md hover:shadow-lg flex items-center gap-2 text-sm"
+                >
+                  <span className="text-base">👑</span>
+                  Área Admin
+                </button>
+              )}
+              <button
+                onClick={() => router.push('/nova-transacao')}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-2 rounded-lg transition-colors shadow-md hover:shadow-lg flex items-center gap-2 text-sm"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Nova Transação
+              </button>
+            </div>
           </div>
 
-          {transactions.length === 0 ? (
+          {!transactions || transactions.data.length === 0 ? (
             <div className="text-center py-10">
               <svg className="mx-auto h-10 w-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -188,10 +228,9 @@ export default function DashboardPage() {
               <p className="mt-3 text-sm text-gray-500">Nenhuma transação realizada ainda</p>
             </div>
           ) : (
-            <div className="space-y-3">
-              {transactions
-                .slice(0, 10)
-                .map((transaction) => {
+            <>
+              <div className="space-y-3">
+                {transactions.data.map((transaction) => {
                   const isSender = transaction.senderId === user.id;
                   const otherUser = isSender
                     ? { id: transaction.receiverId, name: transaction.receiverName, email: transaction.receiverEmail }
@@ -246,7 +285,83 @@ export default function DashboardPage() {
                     </div>
                   );
                 })}
-            </div>
+              </div>
+
+              {/* Paginação - Sempre visível */}
+              {(transactions.meta.total > 0) && (
+                <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-gray-200">
+                  {/* Info de Registros */}
+                  <div className="text-sm text-gray-600">
+                    Mostrando {transactions.data.length} de {transactions.meta.total} transações
+                    <span className="mx-2">•</span>
+                    Página {transactions.meta.page} de {transactions.meta.totalPages}
+                  </div>
+
+                  {/* Controles de Paginação */}
+                  <div className="flex items-center gap-2">
+                    {/* Itens por página */}
+                    <select
+                      value={itemsPerPage}
+                      onChange={(e) => changeItemsPerPage(Number(e.target.value))}
+                      className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    >
+                      <option value={5}>5 por página</option>
+                      <option value={10}>10 por página</option>
+                      <option value={20}>20 por página</option>
+                      <option value={50}>50 por página</option>
+                    </select>
+
+                    {/* Botões de navegação */}
+                    <div className="flex gap-1">
+                      <button
+                        onClick={goToPreviousPage}
+                        disabled={!transactions.meta.hasPreviousPage}
+                        className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        ← Anterior
+                      </button>
+
+                      {/* Números de página */}
+                      <div className="hidden sm:flex gap-1">
+                        {Array.from({ length: Math.min(5, transactions.meta.totalPages) }, (_, i) => {
+                          let pageNumber;
+                          if (transactions.meta.totalPages <= 5) {
+                            pageNumber = i + 1;
+                          } else if (currentPage <= 3) {
+                            pageNumber = i + 1;
+                          } else if (currentPage >= transactions.meta.totalPages - 2) {
+                            pageNumber = transactions.meta.totalPages - 4 + i;
+                          } else {
+                            pageNumber = currentPage - 2 + i;
+                          }
+
+                          return (
+                            <button
+                              key={pageNumber}
+                              onClick={() => goToPage(pageNumber)}
+                              className={`px-3 py-1.5 border rounded-lg text-sm font-medium transition-colors ${currentPage === pageNumber
+                                ? 'bg-emerald-600 text-white border-emerald-600'
+                                : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                                }`}
+                            >
+                              {pageNumber}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <button
+                        onClick={goToNextPage}
+                        disabled={!transactions.meta.hasNextPage}
+                        className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        Próxima →
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

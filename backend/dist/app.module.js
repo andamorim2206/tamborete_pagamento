@@ -18,6 +18,7 @@ const auth_module_1 = require("./auth/auth.module");
 const transactions_module_1 = require("./transactions/transactions.module");
 const cache_module_1 = require("./cache/cache.module");
 const metrics_module_1 = require("./metrics/metrics.module");
+const logs_module_1 = require("./logs/logs.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -47,6 +48,7 @@ exports.AppModule = AppModule = __decorate([
             users_module_1.UsersModule,
             auth_module_1.AuthModule,
             transactions_module_1.TransactionsModule,
+            logs_module_1.LogsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

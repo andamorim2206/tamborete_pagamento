@@ -5,6 +5,7 @@ import { UsersRepository } from '../users/users.repository';
 import { TransactionStatus } from './enums/transaction-status.enum';
 import { CacheService } from '../cache/cache.service';
 import { MetricsService } from '../metrics/metrics.service';
+import { LogsService } from '../logs/logs.service';
 
 interface TransactionCreatedEvent {
     transactionId: string;
@@ -23,6 +24,7 @@ export class TransactionsProcessor {
         private readonly usersRepository: UsersRepository,
         private readonly cacheService: CacheService,
         private readonly metricsService: MetricsService,
+        private readonly logsService: LogsService,
     ) { }
 
     @EventPattern('transaction.created')
@@ -36,12 +38,15 @@ export class TransactionsProcessor {
             `📨 Recebendo transação para processar: ${data.transactionId}`,
         );
 
-        // CONTROLE DE CONCORRÊNCIA: Tentar adquirir lock distribuído
         const lockAcquired = await this.cacheService.acquireLock(lockKey, 60);
 
         if (!lockAcquired) {
             this.logger.warn(
                 `⚠️ Transação ${data.transactionId} já está sendo processada por outro worker. Ignorando...`,
+            );
+            await this.logsService.logRabbitMQError(
+                `Lock não adquirido para transação ${data.transactionId}`,
+                { transactionId: data.transactionId },
             );
             return;
         }
@@ -49,27 +54,19 @@ export class TransactionsProcessor {
         let success = false;
 
         try {
-            // 1. Atualizar status para PROCESSING
             await this.transactionsRepository.updateStatus(
                 data.transactionId,
                 TransactionStatus.PROCESSING,
             );
             this.logger.log(`⏳ Transação ${data.transactionId} em processamento...`);
+            await this.logsService.logTransactionProcessing(data.transactionId, data.senderId);
 
-            // Invalidar cache da transação e das listas
             await this.cacheService.del(`transaction:${data.transactionId}`);
-            await this.cacheService.del(`transactions:user:${data.senderId}`);
-            await this.cacheService.del(`transactions:user:${data.receiverId}`);
+            await this.cacheService.delPattern(`transactions:user:${data.senderId}*`);
+            await this.cacheService.delPattern(`transactions:user:${data.receiverId}*`);
 
-            // 2. Simular processamento (validações, chamadas externas, etc)
-            // Em um cenário real, aqui você faria:
-            // - Validação de saldo
-            // - Chamadas para APIs de pagamento (PIX, Cartão)
-            // - Regras de negócio complexas
             await this.simulateProcessing();
 
-            // 3. Realizar transferência de saldo
-            // Debitar do sender e creditar ao receiver
             this.logger.log(
                 `💰 Transferindo R$ ${data.amount.toFixed(2)} de ${data.senderId} para ${data.receiverId}`,
             );
@@ -79,50 +76,75 @@ export class TransactionsProcessor {
 
             this.logger.log(`✅ Saldos atualizados com sucesso!`);
 
-            // 4. Atualizar status para COMPLETED
             await this.transactionsRepository.updateStatus(
                 data.transactionId,
                 TransactionStatus.COMPLETED,
             );
             this.logger.log(`✅ Transação ${data.transactionId} completada com sucesso!`);
+            await this.logsService.logTransactionCompleted(data.transactionId, data.senderId);
+            await this.logsService.logRabbitMQSuccess(
+                `Transação ${data.transactionId} processada com sucesso`,
+                { transactionId: data.transactionId, amount: data.amount },
+            );
 
             success = true;
 
-            // Invalidar cache da transação e das listas de transações dos usuários
             await this.cacheService.del(`transaction:${data.transactionId}`);
-            await this.cacheService.del(`transactions:user:${data.senderId}`);
-            await this.cacheService.del(`transactions:user:${data.receiverId}`);
+            await this.cacheService.delPattern(`transactions:user:${data.senderId}*`);
+            await this.cacheService.delPattern(`transactions:user:${data.receiverId}*`);
 
         } catch (error) {
-            // 5. Se der erro, marca como FAILED
             const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+            const stackTrace = error instanceof Error ? error.stack : undefined;
+
             this.logger.error(
-                `❌ Erro ao processar transação ${data.transactionId}: ${errorMessage}`,
+                `Erro ao processar transação ${data.transactionId}: ${errorMessage}`,
             );
+
             await this.transactionsRepository.updateStatus(
                 data.transactionId,
                 TransactionStatus.FAILED,
             );
 
+            // Log detalhado de erro com stack trace
+            await this.logsService.logErrorWithStack(
+                error,
+                'TransactionsProcessor.handleTransactionCreated',
+                data.senderId,
+                {
+                    transactionId: data.transactionId,
+                    receiverId: data.receiverId,
+                    amount: data.amount,
+                    paymentMethod: data.paymentMethod,
+                }
+            );
+
+            await this.logsService.logTransactionFailed(data.transactionId, data.senderId, errorMessage);
+            await this.logsService.logRabbitMQError(
+                `Erro ao processar transação ${data.transactionId}: ${errorMessage}`,
+                {
+                    transactionId: data.transactionId,
+                    error: errorMessage,
+                    stackTrace,
+                    context: 'RabbitMQ Transaction Processing',
+                },
+            );
+
             success = false;
 
-            // Invalidar cache
             await this.cacheService.del(`transaction:${data.transactionId}`);
-            await this.cacheService.del(`transactions:user:${data.senderId}`);
-            await this.cacheService.del(`transactions:user:${data.receiverId}`);
+            await this.cacheService.delPattern(`transactions:user:${data.senderId}*`);
+            await this.cacheService.delPattern(`transactions:user:${data.receiverId}*`);
         } finally {
-            // Registrar métrica de processamento
             const processingTime = Date.now() - startTime;
             this.metricsService.recordMessageConsumed(processingTime, success);
 
-            // Liberar lock SEMPRE, mesmo em caso de erro
             await this.cacheService.releaseLock(lockKey);
-            this.logger.log(`🔓 Lock liberado para transação ${data.transactionId}`);
+            this.logger.log(` Lock liberado para transação ${data.transactionId}`);
         }
     }
 
     private async simulateProcessing(): Promise<void> {
-        // Simula um processamento de 3 segundos
         return new Promise((resolve) => {
             setTimeout(() => {
                 resolve();

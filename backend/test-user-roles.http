@@ -1,0 +1,46 @@
+### Criar usuário USER (padrão - sem especificar role)
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+  "name": "João Silva",
+  "email": "joao.silva@example.com",
+  "password": "Senha@123"
+}
+
+### Criar usuário USER (especificando explicitamente)
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+  "name": "Maria Oliveira",
+  "email": "maria.oliveira@example.com",
+  "password": "Senha@123",
+  "role": "USER"
+}
+
+### Criar usuário ADMIN
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+  "name": "Admin Master",
+  "email": "admin.master@example.com",
+  "password": "Senha@123",
+  "role": "ADMIN"
+}
+
+### Testar validação - role inválido (deve retornar erro)
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+  "name": "Teste Inválido",
+  "email": "teste.invalido@example.com",
+  "password": "Senha@123",
+  "role": "INVALID_ROLE"
+}
+
+### Buscar todos os usuários (requer autenticação)
+GET http://localhost:3000/users
+Authorization: Bearer SEU_TOKEN_AQUI

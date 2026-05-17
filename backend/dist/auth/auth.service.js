@@ -50,42 +50,64 @@ const login_response_dto_1 = require("./dto/login-response.dto");
 const auth_repository_1 = require("./auth.repository");
 const users_repository_1 = require("../users/users.repository");
 const user_response_dto_1 = require("../users/dto/user-response.dto");
+const logs_service_1 = require("../logs/logs.service");
+const log_type_enum_1 = require("../logs/enums/log-type.enum");
 let AuthService = class AuthService {
     authRepository;
     usersRepository;
     jwtService;
-    constructor(authRepository, usersRepository, jwtService) {
+    logsService;
+    constructor(authRepository, usersRepository, jwtService, logsService) {
         this.authRepository = authRepository;
         this.usersRepository = usersRepository;
         this.jwtService = jwtService;
+        this.logsService = logsService;
     }
     async login(loginDto) {
-        const user = await this.usersRepository.findByEmail(loginDto.email);
-        if (!user) {
-            throw new common_1.UnauthorizedException('Email ou senha incorretos');
+        try {
+            const user = await this.usersRepository.findByEmail(loginDto.email);
+            if (!user) {
+                throw new common_1.UnauthorizedException('Email ou senha incorretos');
+            }
+            const isPasswordValid = await bcrypt.compare(loginDto.password, user.password);
+            if (!isPasswordValid) {
+                throw new common_1.UnauthorizedException('Email ou senha incorretos');
+            }
+            await this.authRepository.deactivateAllUserTokens(user.id);
+            const payload = {
+                sub: user.id,
+                email: user.email,
+                name: user.name,
+                role: user.role || 'USER',
+            };
+            const expiresIn = 86400;
+            const token = this.jwtService.sign(payload, {
+                expiresIn: `${expiresIn}s`,
+            });
+            const expiresAt = new Date();
+            expiresAt.setSeconds(expiresAt.getSeconds() + expiresIn);
+            await this.authRepository.createToken(user.id, token, expiresAt);
+            await this.logsService.logUserLogin(user.id, 200, user.email);
+            return new login_response_dto_1.LoginResponseDto(token, expiresIn, {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+            });
         }
-        const isPasswordValid = await bcrypt.compare(loginDto.password, user.password);
-        if (!isPasswordValid) {
-            throw new common_1.UnauthorizedException('Email ou senha incorretos');
+        catch (error) {
+            if (error instanceof common_1.UnauthorizedException) {
+                await this.logsService.createLog({
+                    typeLog: log_type_enum_1.LogType.ERROR,
+                    statusCode: 401,
+                    message: `Tentativa de login falhou: ${loginDto.email}`,
+                    metadata: { email: loginDto.email, error: error.message },
+                });
+            }
+            else {
+                await this.logsService.logErrorWithStack(error, 'AuthService.login', undefined, { email: loginDto.email });
+            }
+            throw error;
         }
-        await this.authRepository.deactivateAllUserTokens(user.id);
-        const payload = {
-            sub: user.id,
-            email: user.email,
-            name: user.name,
-        };
-        const expiresIn = 86400;
-        const token = this.jwtService.sign(payload, {
-            expiresIn: `${expiresIn}s`,
-        });
-        const expiresAt = new Date();
-        expiresAt.setSeconds(expiresAt.getSeconds() + expiresIn);
-        await this.authRepository.createToken(user.id, token, expiresAt);
-        return new login_response_dto_1.LoginResponseDto(token, expiresIn, {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-        });
     }
     async validateToken(token) {
         try {
@@ -120,6 +142,7 @@ exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [auth_repository_1.AuthRepository,
         users_repository_1.UsersRepository,
-        jwt_1.JwtService])
+        jwt_1.JwtService,
+        logs_service_1.LogsService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

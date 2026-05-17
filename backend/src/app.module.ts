@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { CacheModule } from './cache/cache.module';
 import { MetricsModule } from './metrics/metrics.module';
+import { LogsModule } from './logs/logs.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { MetricsModule } from './metrics/metrics.module';
     UsersModule,
     AuthModule,
     TransactionsModule,
+    LogsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
