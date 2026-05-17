@@ -185,7 +185,4 @@ backend/src/
 5. (Admin) Acesse logs em /admin/logs
 
 ---
-
-## 📞 Suporte
-
-Para dúvidas ou problemas, abra uma issue no repositório.
+O insomnia das rotas estao dentro do projeto .yml
